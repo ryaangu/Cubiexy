@@ -1,0 +1,13 @@
+C:\Users\hp\Desktop\Cubiexy\Server\bin\Debug\netcoreapp3.1\Server.exe
+C:\Users\hp\Desktop\Cubiexy\Server\bin\Debug\netcoreapp3.1\Server.deps.json
+C:\Users\hp\Desktop\Cubiexy\Server\bin\Debug\netcoreapp3.1\Server.runtimeconfig.json
+C:\Users\hp\Desktop\Cubiexy\Server\bin\Debug\netcoreapp3.1\Server.runtimeconfig.dev.json
+C:\Users\hp\Desktop\Cubiexy\Server\bin\Debug\netcoreapp3.1\Server.dll
+C:\Users\hp\Desktop\Cubiexy\Server\bin\Debug\netcoreapp3.1\Server.pdb
+C:\Users\hp\Desktop\Cubiexy\Server\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+C:\Users\hp\Desktop\Cubiexy\Server\obj\Debug\netcoreapp3.1\Server.csprojAssemblyReference.cache
+C:\Users\hp\Desktop\Cubiexy\Server\obj\Debug\netcoreapp3.1\Server.AssemblyInfoInputs.cache
+C:\Users\hp\Desktop\Cubiexy\Server\obj\Debug\netcoreapp3.1\Server.AssemblyInfo.cs
+C:\Users\hp\Desktop\Cubiexy\Server\obj\Debug\netcoreapp3.1\Server.csproj.CopyComplete
+C:\Users\hp\Desktop\Cubiexy\Server\obj\Debug\netcoreapp3.1\Server.dll
+C:\Users\hp\Desktop\Cubiexy\Server\obj\Debug\netcoreapp3.1\Server.pdb
