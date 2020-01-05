@@ -6,6 +6,7 @@ using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
+using System.Dynamic;
 
 //Global namespace
 namespace Server
@@ -21,38 +22,12 @@ namespace Server
 			WORLD,
 			PLAYER
 		}
-
-		public enum CLIENT
-		{
-			PING
-		}
-		
-		public enum ACCOUNT
-		{
-			REGISTER,
-			LOGIN,
-			LOGOUT
-		}
-		
-		public enum WORLD
-		{
-			CREATE,
-			ENTER,
-			SET_BLOCK,
-			SAVE,
-			LOAD
-		}
-		
-		public enum PLAYER
-		{
-			UPDATE,
-			DESTROY
-		}
 		
 		//Default variables
-		public Client client;
+		public Client       client;
 		public BufferStream read_buffer;
-		BufferStream _buffer;
+		BufferStream        _buffer;
+		public bool         send_data = true;
 		
 		//Start the handler
 		public void start(Client _client)
@@ -91,7 +66,16 @@ namespace Server
 			}
 		}
 		
-		//Handle and send client
+		//CLIENT
+
+		//Enums
+		public enum CLIENT
+		{
+			PING,
+			DATA
+		}
+
+		//Handle client
 		private void handle_client()
 		{
 			//Read data
@@ -106,6 +90,7 @@ namespace Server
 			}
 		}
 		
+		//Handle and send ping
 		private void handle_ping()
 		{
 			//Read data
@@ -114,6 +99,13 @@ namespace Server
 			
 			//Send back
 			send_ping(_time);
+			
+			//Send data
+			if (send_data)
+			{
+				send_client_data();
+				send_data = false;
+			}
 		}
 		
 		public void send_ping(uint time)
@@ -131,7 +123,35 @@ namespace Server
 			client.send(_buffer);
 		}
 		
-		//Handle and send account
+		//Send client data
+		public void send_client_data()
+		{
+			//Send back
+			_buffer.Seek(0);
+			
+			ushort _data_id = (ushort) DATA.CLIENT;
+			byte _type = (byte) CLIENT.DATA;
+			ushort _client_id = (ushort) client.client_id;
+			
+			_buffer.Write(_data_id);
+			_buffer.Write(_type);
+			_buffer.Write(_client_id);
+			
+			client.send(_buffer);
+		}
+		
+
+		//ACCOUNT
+
+		//Enums
+		public enum ACCOUNT
+		{
+			REGISTER,
+			LOGIN,
+			LOGOUT
+		}
+
+		//Handle account
 		private void handle_account()
 		{
 			//Read data
@@ -152,6 +172,7 @@ namespace Server
 			}
 		}
 		
+		//Handle and send account register
 		public void handle_account_register()
 		{
 			//Read data
@@ -168,24 +189,20 @@ namespace Server
 			//Create the database
 			Database account_db = new Database("Accounts", _username);
 			
-			//Encode the password
+			//Hash the password
 			_password = account_db.hash(_password);
 			
 			//Check if account doesn't exists
 			if (!account_db.exists())
 			{
 				//Create the account
-				Account account = new Account
-				{
-					username = _username,
-					password = _password
-				};
 				
-				//Encode the account object into JSON
-				string _json = account_db.encode(account);
-				
-				//Write the file
-				account_db.write(_json);
+				//Add the sections
+				account_db.add_section("information");
+
+				//Add the keys
+				account_db.add_key("information", "username", _username);
+				account_db.add_key("information", "password", _password);
 				
 				//Show console message
 				Console.WriteLine("Account created: " + _username);
@@ -220,6 +237,7 @@ namespace Server
 			client.send(_buffer);
 		}
 		
+		//Handle and send account login
 		public void handle_account_login()
 		{
 			//Read data
@@ -236,17 +254,17 @@ namespace Server
 			//Create the database
 			Database account_db = new Database("Accounts", _username);
 			
-			//Encode the password
+			//Hash the password
 			_password = account_db.hash(_password);
 			
 			//Check if account exists
 			if (account_db.exists())
 			{
 				//Get the account information
-				Account account = account_db.decode_account(account_db.read());
+				string _account_password = account_db.get_string_key("information", "password");
 				
 				//Check if password is equal
-				if (_password == account.password)
+				if (_password == _account_password)
 				{
 					//Check if account online
 					if (!client.server.accounts_online.Contains(_username))
@@ -285,7 +303,7 @@ namespace Server
 			//Send back
 			send_account_login(result, error, _username);
 		}
-		
+	
 		public void send_account_login(bool result, string error, string username)
 		{
 			//Send back
@@ -303,6 +321,7 @@ namespace Server
 			client.send(_buffer);
 		}
 		
+		//Handle account logout
 		public void handle_account_logout()
 		{
 			//Show console message
@@ -315,7 +334,46 @@ namespace Server
 			client.username = "";
 		}
 	
-		//Handle and send world
+		//WORLD
+
+		//Enums
+		public enum WORLD
+		{
+			CREATE,
+			ENTER,
+			SET_BLOCK,
+			SAVE,
+			LOAD,
+			LEAVE
+		}
+
+		public enum LAYER
+		{
+			BACKGROUND,
+			FOREGROUND,
+			COUNT
+		}
+
+		//Functions
+		public string world_get_layer_name(int layer_id)
+		{
+			//Check for layer id
+			if (layer_id == (int) LAYER.BACKGROUND)
+				return "background_layer";
+			else
+				return "foreground_layer";
+		}
+
+		public int world_get_layer_id(string layer_name)
+		{
+			//Check for layer id
+			if (layer_name == "background_layer")
+				return (int) LAYER.BACKGROUND;
+			else
+				return (int) LAYER.FOREGROUND;
+		}
+
+		//Handle world
 		private void handle_world()
 		{
 			//Read data
@@ -330,9 +388,22 @@ namespace Server
 				
 				//Enter
 				case (byte) WORLD.ENTER: handle_world_enter(); break;
+
+				//Save
+				case (byte) WORLD.SAVE: handle_world_save(); break;
+
+				//Set block
+				case (byte) WORLD.SET_BLOCK: handle_world_set_block(); break;
+
+				//Load
+				case (byte) WORLD.LOAD: handle_world_load(); break;
+
+				//Leave
+				case (byte) WORLD.LEAVE: handle_world_leave(); break;
 			}
 		}
 		
+		//Handle and send world create
 		public void handle_world_create()
 		{
 			//Read data
@@ -353,18 +424,16 @@ namespace Server
 			if (!world_db.exists())
 			{
 				//Create the world
-				World world = new World
-				{
-					name = _world_name,
-					owner = _world_owner,
-					data = ""
-				};
 				
-				//Encode the account object into JSON
-				string _json = world_db.encode(world);
-				
-				//Write the file
-				world_db.write(_json);
+				//Add the sections
+				world_db.add_section("information");
+				world_db.add_section("block_data");
+				world_db.add_section("foreground_layer");
+				world_db.add_section("background_layer");
+
+				//Add the keys
+				world_db.add_key("information", "name", _world_name);
+				world_db.add_key("information", "owner", _world_owner);
 				
 				//Show console message
 				Console.WriteLine("World created: " + _world_name);
@@ -380,10 +449,10 @@ namespace Server
 			}
 			
 			//Send back
-			send_world_create(result, error);
+			send_world_create(_world_name, result, error);
 		}
 		
-		public void send_world_create(bool result, string error)
+		public void send_world_create(string world_name, bool result, string error)
 		{
 			//Send back
 			_buffer.Seek(0);
@@ -393,12 +462,14 @@ namespace Server
 			
 			_buffer.Write(_data_id);
 			_buffer.Write(_type);
+			_buffer.Write(world_name);
 			_buffer.Write(result);
 			_buffer.Write(error);
 			
 			client.send(_buffer);
 		}
 		
+		//Handle and send world enter
 		public void handle_world_enter()
 		{
 			//Read data
@@ -414,20 +485,17 @@ namespace Server
 			//Create the database
 			Database world_db = new Database("Worlds", _world_name);
 			
-			//Check if account exists
+			//Check if world exists
 			if (world_db.exists())
 			{
 				//Get the world information
-				World world = world_db.decode_world(world_db.read());
+				_world_owner = world_db.get_string_key("information", "owner");
 			
 				//Show console message
 				Console.WriteLine("World entered: " + _world_name);
 				
 				//Set the client world name
 				client.world_name = _world_name;
-				
-				//Get the world owner
-				_world_owner = world.owner;
 				
 				//Set the result and error
 				result = true;
@@ -461,7 +529,158 @@ namespace Server
 			client.send(_buffer);
 		}
 		
-		//Handle and send player
+		//Handle world save
+		public void handle_world_save()
+		{
+			//Read data
+			string _world_name;
+			byte   _world_width;
+			byte   _world_height;
+			string _layer_name;
+			
+			read_buffer.Read(out _world_name);
+			read_buffer.Read(out _world_width);
+			read_buffer.Read(out _world_height);
+			read_buffer.Read(out _layer_name);
+			
+			//Create the database
+			Database world_db = new Database("Worlds", _world_name);
+			
+			//Check if world exists
+			if (world_db.exists())
+			{
+				//Add the world dimensions to the database
+				world_db.add_key("information", "world_width",  _world_width.ToString());
+				world_db.add_key("information", "world_height", _world_height.ToString());
+
+				//Loop through world dimensions
+				for (byte _y = 0; _y < _world_height; _y++)
+				{
+					for (byte _x = 0; _x < _world_width; _x++)
+					{
+						string _data;
+						read_buffer.Read(out _data);
+
+						//Edit the position in database
+						world_db.edit_key(_layer_name, _x.ToString() + "_" + _y.ToString(), _data);
+					}
+				}
+				
+				//Show console message
+				Console.WriteLine("World saved: " + _world_name + " - Layer: " + _layer_name);
+			}
+		}
+
+		//Handle and send world set block
+		public void handle_world_set_block()
+		{
+			//Read data
+			string _world_name;
+			string _layer_name;
+			byte   _x;
+			byte   _y;
+			ushort _block_id;
+			
+			read_buffer.Read(out _world_name);
+			read_buffer.Read(out _layer_name);
+			read_buffer.Read(out _x);
+			read_buffer.Read(out _y);
+			read_buffer.Read(out _block_id);
+			
+			//Create the database
+			Database world_db = new Database("Worlds", _world_name);
+			
+			//Check if world exists
+			if (world_db.exists())
+			{
+				//Send back
+				send_world_set_block((byte) world_get_layer_id(_layer_name), _x, _y, _block_id);
+			}
+		}
+
+		public void send_world_set_block(byte layer_id, byte x, byte y, ushort block_id)
+		{
+			//Send back
+			_buffer.Seek(0);
+			
+			ushort _data_id = (ushort) DATA.WORLD;
+			byte _type = (byte) WORLD.SET_BLOCK;
+			
+			_buffer.Write(_data_id);
+			_buffer.Write(_type);
+			_buffer.Write(layer_id);
+			_buffer.Write(x);
+			_buffer.Write(y);
+			_buffer.Write(block_id);
+			
+			client.send_to_world(_buffer);
+		}
+
+		//Handle and send world load
+		public void handle_world_load()
+		{
+			//Read data
+			string _world_name;
+			string _layer_name;
+			
+			read_buffer.Read(out _world_name);
+			read_buffer.Read(out _layer_name);
+			
+			//Create the database
+			Database world_db = new Database("Worlds", _world_name);
+			
+			//Check if world exists
+			if (world_db.exists())
+			{
+				//Send back
+				send_world_load(world_db, (byte) world_get_layer_id(_layer_name), _layer_name);
+
+				//Show console message
+				Console.WriteLine("World loaded: " + _world_name + " - Layer: " + _layer_name);
+			}
+		}
+
+		public void send_world_load(Database world_db, byte layer_id, string layer_name)
+		{
+			//Send back
+			_buffer.Seek(0);
+			
+			ushort _data_id = (ushort) DATA.WORLD;
+			byte _type = (byte) WORLD.LOAD;
+			
+			_buffer.Write(_data_id);
+			_buffer.Write(_type);
+			_buffer.Write(layer_id);
+
+			//Get the data
+			string _data = world_db.get_string_key(layer_name, "data");
+
+			//Write the block data
+			_buffer.Write(_data);
+			
+			client.send(_buffer);
+		}
+
+		//Handle world leave
+		public void handle_world_leave()
+		{
+			//Show console message
+			Console.WriteLine("World left: " + client.world_name);
+			
+			//Reset world name
+			client.world_name = "";
+		}
+
+		//PLAYER
+
+		//Enums
+		public enum PLAYER
+		{
+			UPDATE,
+			DESTROY
+		}
+
+		//Handle player
 		private void handle_player()
 		{
 			//Read data
@@ -479,6 +698,7 @@ namespace Server
 			}
 		}
 		
+		//Handle and send player update
 		public void handle_player_update()
 		{
 			//Read data
@@ -528,6 +748,7 @@ namespace Server
 			client.send_to_world(_buffer);
 		}
 		
+		//Handle player destroy
 		public void handle_player_destroy()
 		{
 			//Send back

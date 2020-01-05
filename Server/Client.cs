@@ -20,30 +20,30 @@ namespace Server
 		public Thread abort_thread;
 		
 		public TcpClient tcp_client;
-		public Server server;
+		public Server    server;
 		
-		public string username = "";
+		public string username   = "";
 		public string world_name = "";
-		public int client_id;
+		public int    client_id;
 		
 		public bool connected = true;
 		
 		public Handler handler;
 		
 		//Buffer variables
-		public int buffer_size         = 1024;
+		public int buffer_size      = 1024;
 		public int buffer_alignment = 1;
 		
 		//Start the client
 		public void start(TcpClient client, Server parent_server, int id)
 		{
 			//Set the client and server
-			tcp_client  = client;
-			server       = parent_server;
-			client_id    = id;
+			tcp_client = client;
+			server     = parent_server;
+			client_id  = id;
 			
 			//Set the client variables
-			client.SendBufferSize     = buffer_size;
+			client.SendBufferSize    = buffer_size;
             client.ReceiveBufferSize = buffer_size;
 			
 			//Create and start handler
@@ -76,8 +76,10 @@ namespace Server
 		{
 			foreach (Client client in server.client_list)
 			{
-				if (client.world_name == world_name && world_name != "" && client.client_id != client_id)
+				if (client.world_name == world_name && world_name != "")
+				{
 					client.send(buffer);
+				}
             }
 		}
 		
@@ -175,7 +177,7 @@ namespace Server
 				{
 					Thread.Sleep(10);
 					BufferStream read_buffer = new BufferStream(buffer_size, 1);
-					NetworkStream stream = tcp_client.GetStream();
+					NetworkStream stream     = tcp_client.GetStream();
 					stream.Read(read_buffer.Memory, 0, buffer_size);
 
 					//Handle data

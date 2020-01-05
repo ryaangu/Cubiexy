@@ -22,7 +22,7 @@ namespace Server
 		
 		public int client_id = 1;
 		
-		Thread tcp_thread;
+		Thread      tcp_thread;
 		TcpListener tcp_listener = null;
 		
 		//Start the server
@@ -32,7 +32,7 @@ namespace Server
 			port = tcp_port;
 			
 			//Create the lists
-			client_list = new List<Client>();
+			client_list     = new List<Client>();
 			accounts_online = new List<string>();
 			
 			//Start listening to new connections
@@ -86,7 +86,7 @@ namespace Server
 				
 				//Create and start the client
 				Client client = new Client();
-						 client.start(tcp_client, this, client_id);
+					   client.start(tcp_client, this, client_id);
 						 
 				//Add the client to client list
 				client_list.Add(client);

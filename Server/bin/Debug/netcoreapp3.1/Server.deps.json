@@ -8,17 +8,17 @@
     ".NETCoreApp,Version=v3.1": {
       "Server/1.0.0": {
         "dependencies": {
-          "Newtonsoft.Json": "12.0.3"
+          "ini-parser": "3.4.0"
         },
         "runtime": {
           "Server.dll": {}
         }
       },
-      "Newtonsoft.Json/12.0.3": {
+      "ini-parser/3.4.0": {
         "runtime": {
-          "lib/netstandard2.0/Newtonsoft.Json.dll": {
-            "assemblyVersion": "12.0.0.0",
-            "fileVersion": "12.0.3.23909"
+          "lib/net20/INIFileParser.dll": {
+            "assemblyVersion": "2.4.0.0",
+            "fileVersion": "2.4.0.0"
           }
         }
       }
@@ -30,12 +30,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Newtonsoft.Json/12.0.3": {
+    "ini-parser/3.4.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-6mgjfnRB4jKMlzHSl+VD+oUc1IebOZabkbyWj2RiTgWwYPPuaK1H97G1sHqGwPlS5npiF5Q0OrxN1wni2n5QWg==",
-      "path": "newtonsoft.json/12.0.3",
-      "hashPath": "newtonsoft.json.12.0.3.nupkg.sha512"
+      "sha512": "sha512-HGnEiHTQO/gQuInzDV6aJafjYsJgjMgFZtLv6Ne0cZuT4aTf9as5pCFONIrJvh9uyXSutBsAUr2C/E0j4nXclw==",
+      "path": "ini-parser/3.4.0",
+      "hashPath": "ini-parser.3.4.0.nupkg.sha512"
     }
   }
 }
