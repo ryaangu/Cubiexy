@@ -45,6 +45,12 @@ image_speed = 0.25;
 
 //Update the player
 alarm[0] = 1;
+
+//Create the camera
+instance_create(0, 0, obj_camera);
+
+//Get inputs
+_key_left = false; _key_right = false; _key_jump = false; _key_up = false; _key_down = false; _key_attack = false;
 </string>
           </argument>
         </arguments>
@@ -118,9 +124,6 @@ alarm[0] = 1.1;
             <kind>1</kind>
             <string>///Player Movement
 
-//Get inputs
-var _key_left, _key_right, _key_jump, _key_up, _key_down, _key_attack;
-
 //Check for pause
 if (!instance_exists(par_pause))
 {
@@ -145,7 +148,7 @@ if (_key_jump &amp;&amp; jumps &lt; max_jumps)
     jumps++;
 }
 
-if (jumps &gt; 0 &amp;&amp; (y == (WORLD_HEIGHT * BLOCK_SIZE) - 17 || block_meeting(x, y + 1)))
+if (jumps &gt; 0 &amp;&amp; (y == WORLD_HEIGHT - 17 || block_meeting(x, y + 1)))
     jumps = 0;
     
 //Noclip
@@ -196,8 +199,8 @@ if (block_meeting(x, y + vsp) &amp;&amp; !(noclip &amp;&amp; ((_key_up || _key_d
 y += vsp;
 
 //Clamp position
-x = clamp(x, 14, (WORLD_WIDTH  * BLOCK_SIZE) - 14);
-y = clamp(y, 17, (WORLD_HEIGHT * BLOCK_SIZE) - 17);
+x = clamp(x, 14, WORLD_WIDTH  - 14);
+y = clamp(y, 17, WORLD_HEIGHT - 17);
 </string>
           </argument>
         </arguments>
@@ -221,7 +224,7 @@ y = clamp(y, 17, (WORLD_HEIGHT * BLOCK_SIZE) - 17);
             <string>///Player Animation
 
 //Movement animation
-if (block_meeting(x, y + 1) || y == (WORLD_HEIGHT * BLOCK_SIZE) - 17)
+if (block_meeting(x, y + 1) || y == WORLD_HEIGHT - 17)
 {
     if (sprite_index != spr_player_attack &amp;&amp; (!image_index &gt;= 0 || !image_index &lt;= 4))
     {
@@ -250,6 +253,32 @@ if (sprite_index != spr_player_attack &amp;&amp; _key_attack)
 {
     sprite_index = spr_player_attack;
     image_index  = 4;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Collision checks
+if (block_meeting(x, y) &amp;&amp; !noclip)
+{
+    x = WORLD_WIDTH/2;
+    y = 300;    
 }
 </string>
           </argument>

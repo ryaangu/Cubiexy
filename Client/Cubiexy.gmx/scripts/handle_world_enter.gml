@@ -1,4 +1,4 @@
-///handle_account_login();
+///handle_world_enter();
 
 //Read data
 var _result      = buffer_read(read_buffer, buffer_bool),

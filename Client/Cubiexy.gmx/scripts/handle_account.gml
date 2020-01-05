@@ -1,5 +1,13 @@
 ///handle_account();
 
+//Enums
+enum ACCOUNT
+{
+    REGISTER,
+    LOGIN,
+    LOGOUT
+}
+
 //Read data
 var _type = buffer_read(read_buffer, buffer_u8);
 

@@ -10,6 +10,9 @@ var _client_id    = buffer_read(read_buffer, buffer_u16),
     _image_speed  = buffer_read(read_buffer, buffer_f32),
     _image_alpha  = buffer_read(read_buffer, buffer_f32),
     _name         = buffer_read(read_buffer, buffer_string);
+    
+//Check if same client id
+if (_client_id == global.client_id) return false;
 
 //Check for player inside map
 if (!ds_map_exists(global.player_map, string(_client_id)))
@@ -40,7 +43,7 @@ if (instance_exists(_player))
 else
 {
     //Create the player
-    var _player           = instance_create(_x, _y, obj_other_player);
+    var _player           = instance_create(0, 0, obj_other_player);
         _player.client_id = _client_id;
     
     //Add to the map

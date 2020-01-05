@@ -3,6 +3,9 @@
 //Read data
 var _client_id = buffer_read(read_buffer, buffer_u16);
 
+//Check if same client id
+if (_client_id == global.client_id) return false;
+
 //Check for player inside map
 if (ds_map_exists(global.player_map, string(_client_id)))
 {

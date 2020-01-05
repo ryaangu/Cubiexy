@@ -87,8 +87,8 @@ if (instance_exists(target) &amp;&amp; !instance_exists(par_pause))
     view_yview = -(view_hview/2) + y;
     
     //Clamp the view positions
-    view_xview = clamp(view_xview, 0, (WORLD_WIDTH  * BLOCK_SIZE) - view_wview);
-    view_yview = clamp(view_yview, 0, (WORLD_HEIGHT * BLOCK_SIZE) - view_hview);
+    view_xview = clamp(view_xview, 0, WORLD_WIDTH  - view_wview);
+    view_yview = clamp(view_yview, 0, WORLD_HEIGHT - view_hview);
 }
 </string>
           </argument>

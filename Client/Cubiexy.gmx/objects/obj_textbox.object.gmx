@@ -90,7 +90,7 @@ if (typing)
 {
     //Set the text and avoid # breaking
     text = string_copy(keyboard_string, 1, max_letters);
-    text = string_replace_all(text, "#", "\#");
+    text = string_replace_all(text, "#", "");
     text = string_upper(text);
     
     //Save text

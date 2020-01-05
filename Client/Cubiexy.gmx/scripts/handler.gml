@@ -1,5 +1,9 @@
-///handler(read_buffer);
+///handler(read_buffer, size);
 read_buffer = argument[0];
+var _size   = argument[1];
+
+//Seek the buffer
+buffer_seek(read_buffer, buffer_seek_start, 0);
 
 //Read data
 var _data_id = buffer_read(read_buffer, buffer_u16);

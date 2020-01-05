@@ -1,5 +1,12 @@
 ///handle_player();
 
+//Enums
+enum PLAYER
+{
+    UPDATE,
+    DESTROY
+}
+
 //Read data
 var _type = buffer_read(read_buffer, buffer_u8);
 
