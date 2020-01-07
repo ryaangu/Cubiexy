@@ -31,19 +31,19 @@
 global.socket = network_create_socket(network_socket_tcp);
 
 //Connect to the server
-network_connect_raw(global.socket, "0.tcp.ngrok.io", 11483);
+network_connect_raw(global.socket, "127.0.0.1", 9700);
 
 //Socket configuration
-network_set_timeout(global.socket, 2000, 2000);
+network_set_timeout(global.socket, 1000, 1000);
 
 //Global variables
 global.connected = true;
 global.ping      = -1;
 global.client_id = -1;
 
-//Create the read buffer
-global.buffer = buffer_create(1024, buffer_grow, 1);
-read_buffer   = buffer_create(1024, buffer_grow, 1);
+//Create the read bufferf
+global.buffer = buffer_create(20000, buffer_grow, 1);
+read_buffer   = buffer_create(20000, buffer_grow, 1);
 
 //Send ping
 alarm[0] = 1;
@@ -123,10 +123,10 @@ alarm[0] = room_speed;
             <string>///Handle data
 
 //Get the id of the socket
-var _socket_id = ds_map_find_value(async_load, "id");
+//var _socket_id = ds_map_find_value(async_load, "id");
 
 //Check for the same id
-if (global.socket == _socket_id)
+//if (global.socket == _socket_id)
 {
     //Check for network type
     var _type = ds_map_find_value(async_load, "type");
@@ -138,11 +138,10 @@ if (global.socket == _socket_id)
         
             //Get the read buffer
             var _read_buffer = ds_map_find_value(async_load, "buffer");
-            var _size   = ds_map_find_value(async_load, "size");
+            var _size        = ds_map_find_value(async_load, "size");
             
-            //Handler
-            if (buffer_exists(_read_buffer))
-                handler(_read_buffer, _size);
+            //Handle
+            handler(_read_buffer, _size);
             
         break;   
     }

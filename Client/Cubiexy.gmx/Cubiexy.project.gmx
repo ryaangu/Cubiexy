@@ -153,7 +153,19 @@
     <scripts name="World">
       <script>scripts\world_init.gml</script>
       <scripts name="Player">
-        <script>scripts\player_render_name.gml</script>
+        <scripts name="Control">
+          <script>scripts\player_create.gml</script>
+          <script>scripts\player_exists.gml</script>
+          <script>scripts\player_get.gml</script>
+          <script>scripts\player_destroy.gml</script>
+        </scripts>
+        <scripts name="Render">
+          <script>scripts\player_render_name.gml</script>
+        </scripts>
+        <scripts name="Data">
+          <script>scripts\player_write_data.gml</script>
+          <script>scripts\player_read_data.gml</script>
+        </scripts>
       </scripts>
       <scripts name="Blocks">
         <script>scripts\block_init.gml</script>
@@ -189,7 +201,8 @@
         </scripts>
       </scripts>
       <scripts name="Data">
-        <script>scripts\world_write_buffer.gml</script>
+        <script>scripts\world_write_horizontal_blocks.gml</script>
+        <script>scripts\world_read_horizontal_blocks.gml</script>
       </scripts>
     </scripts>
     <scripts name="Database">

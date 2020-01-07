@@ -11,6 +11,6 @@ buffer_write(global.buffer, buffer_string, string_upper(argument[0]));
 buffer_write(global.buffer, buffer_string, world_get_layer_name(argument[1]));
 buffer_write(global.buffer, buffer_u8, argument[2]);
 buffer_write(global.buffer, buffer_u8, argument[3]);
-buffer_write(global.buffer, buffer_u16, argument[4]);
+buffer_write(global.buffer, buffer_u8, argument[4]);
 
 network_send_raw(global.socket, global.buffer, buffer_tell(global.buffer));

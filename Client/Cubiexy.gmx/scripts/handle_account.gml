@@ -1,4 +1,5 @@
-///handle_account();
+///handle_account(type);
+var _type = argument[0];
 
 //Enums
 enum ACCOUNT
@@ -7,9 +8,6 @@ enum ACCOUNT
     LOGIN,
     LOGOUT
 }
-
-//Read data
-var _type = buffer_read(read_buffer, buffer_u8);
 
 //Check for type
 switch (_type)

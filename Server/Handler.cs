@@ -36,7 +36,7 @@ namespace Server
 			client = _client;
 			
 			//Create the buffer
-			_buffer = new BufferStream(1024, 1);
+			_buffer = new BufferStream(20000, 1);
 		}
 		
 		//Handle data
@@ -389,11 +389,11 @@ namespace Server
 				//Enter
 				case (byte) WORLD.ENTER: handle_world_enter(); break;
 
-				//Save
-				case (byte) WORLD.SAVE: handle_world_save(); break;
-
 				//Set block
 				case (byte) WORLD.SET_BLOCK: handle_world_set_block(); break;
+
+				//Save
+				case (byte) WORLD.SAVE: handle_world_save(); break;
 
 				//Load
 				case (byte) WORLD.LOAD: handle_world_load(); break;
@@ -434,6 +434,8 @@ namespace Server
 				//Add the keys
 				world_db.add_key("information", "name", _world_name);
 				world_db.add_key("information", "owner", _world_owner);
+				world_db.add_key("information", "world_width", "100");
+				world_db.add_key("information", "world_height", "50");
 				
 				//Show console message
 				Console.WriteLine("World created: " + _world_name);
@@ -534,14 +536,14 @@ namespace Server
 		{
 			//Read data
 			string _world_name;
-			byte   _world_width;
-			byte   _world_height;
 			string _layer_name;
+			byte   _y;
+			string _data;
 			
 			read_buffer.Read(out _world_name);
-			read_buffer.Read(out _world_width);
-			read_buffer.Read(out _world_height);
 			read_buffer.Read(out _layer_name);
+			read_buffer.Read(out _y);
+			read_buffer.Read(out _data);
 			
 			//Create the database
 			Database world_db = new Database("Worlds", _world_name);
@@ -549,25 +551,8 @@ namespace Server
 			//Check if world exists
 			if (world_db.exists())
 			{
-				//Add the world dimensions to the database
-				world_db.add_key("information", "world_width",  _world_width.ToString());
-				world_db.add_key("information", "world_height", _world_height.ToString());
-
-				//Loop through world dimensions
-				for (byte _y = 0; _y < _world_height; _y++)
-				{
-					for (byte _x = 0; _x < _world_width; _x++)
-					{
-						string _data;
-						read_buffer.Read(out _data);
-
-						//Edit the position in database
-						world_db.edit_key(_layer_name, _x.ToString() + "_" + _y.ToString(), _data);
-					}
-				}
-				
-				//Show console message
-				Console.WriteLine("World saved: " + _world_name + " - Layer: " + _layer_name);
+				//Edit the position in database
+				world_db.edit_key(_layer_name, _y.ToString(), _data);
 			}
 		}
 
@@ -579,26 +564,50 @@ namespace Server
 			string _layer_name;
 			byte   _x;
 			byte   _y;
-			ushort _block_id;
+			byte   _block_id;
 			
 			read_buffer.Read(out _world_name);
 			read_buffer.Read(out _layer_name);
 			read_buffer.Read(out _x);
 			read_buffer.Read(out _y);
 			read_buffer.Read(out _block_id);
-			
+
 			//Create the database
 			Database world_db = new Database("Worlds", _world_name);
 			
 			//Check if world exists
 			if (world_db.exists())
 			{
+				//Get the position data
+				string _data = world_db.get_string_key(_layer_name, _y.ToString());
+
+				//Split the data
+				string[] _data_array = _data.Split(", ");
+
+				//Change the block id
+				_data_array[_x] = _block_id.ToString();
+
+				//Create new data
+				string _new_data = "";
+
+				for (int i = 0; i < _data_array.Length; i++)
+				{
+					_new_data += _data_array[i].ToString();
+					if (i != _data_array.Length - 1) _new_data += ", ";
+				}
+
+				//Save the new data
+				world_db.edit_key(_layer_name, _y.ToString(), _new_data);
+
+				//Get the layer id
+				byte _layer_id = (byte) world_get_layer_id(_layer_name);
+
 				//Send back
-				send_world_set_block((byte) world_get_layer_id(_layer_name), _x, _y, _block_id);
+				send_world_set_block(_layer_id, _x, _y, _block_id);
 			}
 		}
 
-		public void send_world_set_block(byte layer_id, byte x, byte y, ushort block_id)
+		public void send_world_set_block(byte layer_id, byte x, byte y, byte block_id)
 		{
 			//Send back
 			_buffer.Seek(0);
@@ -634,31 +643,34 @@ namespace Server
 			{
 				//Send back
 				send_world_load(world_db, (byte) world_get_layer_id(_layer_name), _layer_name);
-
-				//Show console message
-				Console.WriteLine("World loaded: " + _world_name + " - Layer: " + _layer_name);
 			}
 		}
 
 		public void send_world_load(Database world_db, byte layer_id, string layer_name)
 		{
-			//Send back
-			_buffer.Seek(0);
-			
+			//Variables
 			ushort _data_id = (ushort) DATA.WORLD;
 			byte _type = (byte) WORLD.LOAD;
-			
-			_buffer.Write(_data_id);
-			_buffer.Write(_type);
-			_buffer.Write(layer_id);
 
-			//Get the data
-			string _data = world_db.get_string_key(layer_name, "data");
+			//Loop through world height and send every row
+			for (byte _y = 0; _y < 50; _y += 1)
+			{
+				BufferStream _temp_buffer = new BufferStream(1200, 1);
+				_temp_buffer.Seek(0);
+				
+				_temp_buffer.Write(_data_id);
+				_temp_buffer.Write(_type);
+				_temp_buffer.Write(layer_id);
+				_temp_buffer.Write(_y);
 
-			//Write the block data
-			_buffer.Write(_data);
-			
-			client.send(_buffer);
+				//Get the data
+				string _data = world_db.get_string_key(layer_name, _y.ToString());
+
+				//Write the block data
+				_temp_buffer.Write(_data);
+				
+				client.send(_temp_buffer);
+			}
 		}
 
 		//Handle world leave
@@ -702,29 +714,17 @@ namespace Server
 		public void handle_player_update()
 		{
 			//Read data
-			short _x;
-			short _y;
-			byte _sprite_index;
-			byte _image_index;
-			short _image_xscale;
-			float _image_speed;
-			float _image_alpha;
+			string _data;
 			string _username;
 			
-			read_buffer.Read(out _x);
-			read_buffer.Read(out _y);
-			read_buffer.Read(out _sprite_index);
-			read_buffer.Read(out _image_index);
-			read_buffer.Read(out _image_xscale);
-			read_buffer.Read(out _image_speed);
-			read_buffer.Read(out _image_alpha);
+			read_buffer.Read(out _data);
 			read_buffer.Read(out _username);
 			
 			//Send back
-			send_player_update(_x, _y, _sprite_index, _image_index, _image_xscale, _image_speed, _image_alpha, _username);
+			send_player_update(_data, _username);
 		}
 		
-		public void send_player_update(short x, short y, byte sprite_index, byte image_index, short image_xscale, float image_speed, float image_alpha, string username)
+		public void send_player_update(string data, string username)
 		{
 			//Send back
 			_buffer.Seek(0);
@@ -736,13 +736,7 @@ namespace Server
 			_buffer.Write(_data_id);
 			_buffer.Write(_type);
 			_buffer.Write(_client_id);
-			_buffer.Write(x);
-			_buffer.Write(y);
-			_buffer.Write(sprite_index);
-			_buffer.Write(image_index);
-			_buffer.Write(image_xscale);
-			_buffer.Write(image_speed);
-			_buffer.Write(image_alpha);
+			_buffer.Write(data);
 			_buffer.Write(username);
 			
 			client.send_to_world(_buffer);

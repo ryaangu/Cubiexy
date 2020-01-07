@@ -2,12 +2,14 @@
 
 //Read data
 var _layer_id = buffer_read(read_buffer, buffer_u8),
+    _y        = buffer_read(read_buffer, buffer_u8),
     _data     = buffer_read(read_buffer, buffer_string);
     
-show_message(_data);
-    
-//Read the grid data
-//world_read(_layer_id, _data);
+//Read the data
+world_read_horizontal_blocks(_layer_id, _y, _data);
 
-//Update the chunks
-chunk_update_all();
+//Update chunks
+if (_layer_id == LAYER.FOREGROUND && _y == 49)
+{
+    chunk_update_all();
+}

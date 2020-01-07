@@ -1,4 +1,5 @@
-///handle_player();
+///handle_player(type);
+var _type = argument[0];
 
 //Enums
 enum PLAYER
@@ -6,9 +7,6 @@ enum PLAYER
     UPDATE,
     DESTROY
 }
-
-//Read data
-var _type = buffer_read(read_buffer, buffer_u8);
 
 //Check for type
 switch (_type)

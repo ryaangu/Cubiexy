@@ -1,4 +1,5 @@
-///handle_client();
+///handle_client(type);
+var _type = argument[0];
 
 //Enums
 enum CLIENT
@@ -6,9 +7,6 @@ enum CLIENT
     PING,
     DATA
 }
-
-//Read data
-var _type = buffer_read(read_buffer, buffer_u8);
 
 //Check for type
 switch (_type)

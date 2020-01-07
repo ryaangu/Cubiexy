@@ -31,7 +31,7 @@ namespace Server
 		public Handler handler;
 		
 		//Buffer variables
-		public int buffer_size      = 1024;
+		public int buffer_size      = 20000;
 		public int buffer_alignment = 1;
 		
 		//Start the client
@@ -88,7 +88,10 @@ namespace Server
 		{
 			//Destroy the player
 			if (world_name != "")
+			{
 				handler.handle_player_destroy();
+				handler.handle_world_leave();
+			}
 			
 			//Leave from account
 			if (username != "")
@@ -136,7 +139,7 @@ namespace Server
 		{
 			while (true)
 			{
-				Thread.Sleep(10);
+				Thread.Sleep(5);
 				if (write_queue.Count != 0)
 				{
 					try
@@ -175,7 +178,7 @@ namespace Server
 			{
 				try
 				{
-					Thread.Sleep(10);
+					Thread.Sleep(1);
 					BufferStream read_buffer = new BufferStream(buffer_size, 1);
 					NetworkStream stream     = tcp_client.GetStream();
 					stream.Read(read_buffer.Memory, 0, buffer_size);

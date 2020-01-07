@@ -1,3 +1,5 @@
 ///world_save();
-//send_world_save(global.world_name, 0);
-send_world_save(global.world_name, 1);
+for (var _layer = 0; _layer < LAYER.COUNT; _layer++)
+{
+    send_world_save(global.world_name, _layer);
+}

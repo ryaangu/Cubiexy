@@ -1,4 +1,5 @@
-///handle_world();
+///handle_world(type);
+var _type = argument[0];
 
 //Enums
 enum WORLD
@@ -10,9 +11,6 @@ enum WORLD
     LOAD,
     LEAVE
 }
-
-//Read data
-var _type = buffer_read(read_buffer, buffer_u8);
 
 //Check for type
 switch (_type)

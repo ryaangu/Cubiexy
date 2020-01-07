@@ -64,7 +64,7 @@ instance_create(WORLD_WIDTH/2, WORLD_HEIGHT/2, obj_player);
             <kind>1</kind>
             <string>///World Control
 
-/*//Check if the world was created recently and save it
+//Check if the world was created recently and save it
 var pos = ds_list_find_index(global.worlds_created, global.world_name);
 
 if (pos != -1)
@@ -82,7 +82,7 @@ else if (pos == -1)
 {
     //Load the world
     world_load();
-}*/
+}
 </string>
           </argument>
         </arguments>
@@ -116,37 +116,6 @@ for (var _layer = 0; _layer &lt; LAYER.COUNT; _layer++)
         </arguments>
       </action>
     </event>
-    <event eventtype="6" enumb="56">
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string>var _layer;
-
-if (world_get_block(LAYER.FOREGROUND, mouse_x, mouse_y) == BLOCK.NULL)
-    _layer = LAYER.BACKGROUND;
-else
-    _layer = LAYER.FOREGROUND;
-
-world_set_block(_layer, mouse_x, mouse_y, 0);
-send_world_set_block(global.world_name, _layer, mouse_x div BLOCK_SIZE, mouse_y div BLOCK_SIZE, 0);
-</string>
-          </argument>
-        </arguments>
-      </action>
-    </event>
     <event eventtype="7" enumb="5">
       <action>
         <libid>1</libid>
@@ -166,7 +135,6 @@ send_world_set_block(global.world_name, _layer, mouse_x div BLOCK_SIZE, mouse_y 
             <kind>1</kind>
             <string>///Leave from the world
 send_world_leave();
-//world_save();
 </string>
           </argument>
         </arguments>

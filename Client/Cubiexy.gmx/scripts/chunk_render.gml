@@ -75,4 +75,11 @@ if (surface_exists(_surface))
     
     //Draw the surface
     draw_surface(_surface, _chunk_x * CHUNK_SIZE * BLOCK_SIZE, _chunk_y * CHUNK_SIZE * BLOCK_SIZE);
+    
+    //Check for layer and draw black surface
+    if (_layer == LAYER.BACKGROUND)
+    {
+        //Draw the black surface
+        draw_surface_ext(_surface, _chunk_x * CHUNK_SIZE * BLOCK_SIZE, _chunk_y * CHUNK_SIZE * BLOCK_SIZE, 1, 1, 0, c_black, 0.40);
+    }
 }

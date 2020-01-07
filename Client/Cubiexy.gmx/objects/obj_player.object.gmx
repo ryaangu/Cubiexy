@@ -39,18 +39,19 @@ jumps     = 0;
 max_jumps = 1;
 
 noclip = false;
+update = true;
 
 //Image
 image_speed = 0.25;
-
-//Update the player
-alarm[0] = 1;
 
 //Create the camera
 instance_create(0, 0, obj_camera);
 
 //Get inputs
 _key_left = false; _key_right = false; _key_jump = false; _key_up = false; _key_down = false; _key_attack = false;
+
+//Update the player
+alarm[0] = 1;
 </string>
           </argument>
         </arguments>
@@ -98,7 +99,11 @@ send_player_destroy();
           <argument>
             <kind>1</kind>
             <string>///Update the player
-send_player_update();        
+if (update)
+{
+    send_player_update();
+    update = false;
+}
 alarm[0] = 1.1;
 </string>
           </argument>
@@ -133,7 +138,7 @@ if (!instance_exists(par_pause))
     _key_jump   = keyboard_check_pressed(ord("W")) || keyboard_check_pressed(vk_space) || keyboard_check_pressed(vk_up);
     _key_up     = keyboard_check(ord("W")) || keyboard_check(vk_space) || keyboard_check(vk_up);
     _key_down   = keyboard_check(ord("S")) || keyboard_check(vk_down);
-    _key_attack = mouse_check_button_released(mb_left);
+    _key_attack = mouse_check_button_pressed(mb_left);
 }    
 
 //React to inputs
@@ -201,6 +206,10 @@ y += vsp;
 //Clamp position
 x = clamp(x, 14, WORLD_WIDTH  - 14);
 y = clamp(y, 17, WORLD_HEIGHT - 17);
+
+//Update the player
+if (x != xprevious || y != yprevious)
+    update = true;
 </string>
           </argument>
         </arguments>
@@ -245,14 +254,15 @@ else
 }
 
 //Player direction
-if (move != 0)
+if (move != 0 &amp;&amp; image_xscale != move)
     image_xscale = move;
  
 //Editing animation   
 if (sprite_index != spr_player_attack &amp;&amp; _key_attack)
 {
     sprite_index = spr_player_attack;
-    image_index  = 4;
+    image_speed  = 0.27;
+    update       = true;
 }
 </string>
           </argument>
@@ -277,9 +287,41 @@ if (sprite_index != spr_player_attack &amp;&amp; _key_attack)
             <string>///Collision checks
 if (block_meeting(x, y) &amp;&amp; !noclip)
 {
-    x = WORLD_WIDTH/2;
-    y = 300;    
+    x      = WORLD_WIDTH/2;
+    y      = 300;    
+    update = true;
 }
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="6" enumb="53">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>var _layer;
+
+if (world_get_block(LAYER.FOREGROUND, mouse_x, mouse_y) == BLOCK.NULL)
+    _layer = LAYER.BACKGROUND;
+else
+    _layer = LAYER.FOREGROUND;
+
+send_world_set_block(global.world_name, _layer, mouse_x div BLOCK_SIZE, mouse_y div BLOCK_SIZE, 0);
+send_world_enter(global.world_name);
 </string>
           </argument>
         </arguments>
