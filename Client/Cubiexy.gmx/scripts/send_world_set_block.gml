@@ -3,14 +3,15 @@
 //Check for position outside grid
 if (!ds_grid_check(global.world_grid[argument[1]], argument[2], argument[3])) return false;
 
-buffer_seek(global.buffer, buffer_seek_start, 0);
+//Send
+packet_clear();
 
-buffer_write(global.buffer, buffer_u16, DATA.WORLD);
-buffer_write(global.buffer, buffer_u8, WORLD.SET_BLOCK);
-buffer_write(global.buffer, buffer_string, string_upper(argument[0]));
-buffer_write(global.buffer, buffer_string, world_get_layer_name(argument[1]));
-buffer_write(global.buffer, buffer_u8, argument[2]);
-buffer_write(global.buffer, buffer_u8, argument[3]);
-buffer_write(global.buffer, buffer_u8, argument[4]);
+packet_write(USHORT, DATA.WORLD);
+packet_write(BYTE,   WORLD.SET_BLOCK);
+packet_write(STRING, string_upper(argument[0]));
+packet_write(STRING, world_get_layer_name(argument[1]));
+packet_write(BYTE,   argument[2]);
+packet_write(BYTE,   argument[3]);
+packet_write(BYTE,   argument[4]);
 
-network_send_raw(global.socket, global.buffer, buffer_tell(global.buffer));
+packet_send();

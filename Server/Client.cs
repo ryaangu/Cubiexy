@@ -1,89 +1,60 @@
 //Import resources
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
 using System.Net;
-using System.Threading;
+using System.Net.Sockets;
+using System.Text;
 
-//Global namespace
 namespace Server
 {
 	//Create the class
 	public class Client
 	{
 		//Default variables
-		Queue<BufferStream> write_queue = new Queue<BufferStream>();
-		public Thread read_thread;
-		public Thread write_thread;
-		public Thread abort_thread;
-		
-		public TcpClient tcp_client;
-		public Server    server;
-		
+		public const int BUFFER_SIZE = 20000;
+
+		public BufferStream  buffer       = new BufferStream(BUFFER_SIZE, 1);
+		BufferStream         read_buffer  = new BufferStream(BUFFER_SIZE, 1);
+		public Handler       handler;
+
+		public Socket socket;
+		public Server server;
+		public int    client_id;
 		public string username   = "";
 		public string world_name = "";
-		public int    client_id;
-		
+
 		public bool connected = true;
-		
-		public Handler handler;
-		
-		//Buffer variables
-		public int buffer_size      = 20000;
-		public int buffer_alignment = 1;
-		
-		//Start the client
-		public void start(TcpClient client, Server parent_server, int id)
+
+		//Initialize the client
+		public Client(Socket _socket, Server _server, int _client_id)
 		{
-			//Set the client and server
-			tcp_client = client;
-			server     = parent_server;
-			client_id  = id;
-			
-			//Set the client variables
-			client.SendBufferSize    = buffer_size;
-            client.ReceiveBufferSize = buffer_size;
-			
+			//Set the variables
+			socket    = _socket;
+			server    = _server;
+			client_id = _client_id;
+
+			//Begin receiving data
+			read_buffer.ZeroMemory();
+			socket.BeginReceive(read_buffer.Memory, 0, BUFFER_SIZE, SocketFlags.None, new AsyncCallback(receive_data), null);
+		
 			//Create and start handler
 			handler = new Handler();
-			handler.start(this);
-			
-			//Create and start threads
-			read_thread = new Thread(new ThreadStart(delegate
-			{
-				read();
-			}));
-			
-			read_thread.Start();
-			
-			write_thread = new Thread(new ThreadStart(delegate
-			{
-				write();
-			}));
-			
-			write_thread.Start();
+			handler.start(buffer, this);
 		}
-		
-		//Send data
-		public void send(BufferStream buffer)
+
+		//Destroy everything
+		public void destroy()
 		{
-			write_queue.Enqueue(buffer);
+			//Remove self from the lists
+			server.socket_list.Remove(socket);
+			server.client_list.Remove(this);
+
+			//Shutdown and Close the socket
+			socket.Shutdown(SocketShutdown.Both);
+			socket.Close();
 		}
-		
-		public void send_to_world(BufferStream buffer)
-		{
-			foreach (Client client in server.client_list)
-			{
-				if (client.world_name == world_name && world_name != "")
-				{
-					client.send(buffer);
-				}
-            }
-		}
-		
-		//Disconnect the client
+
+		//Disconnect
 		public void disconnect()
 		{
 			//Destroy the player
@@ -96,111 +67,111 @@ namespace Server
 			//Leave from account
 			if (username != "")
 				handler.handle_account_logout();
-			
+
 			//Show console message
-			Console.WriteLine("Client disconnected. [" + client_id + "]");
-			
-			//Remove client from server
-			server.client_list.Remove(this);
-			
-			//Close stream
-			tcp_client.Close();
-			
-			//Create and start abort thread
-			abort_thread = new Thread(new ThreadStart(delegate
-			{
-				abort();
-			}));
-			
-			abort_thread.Start();
+			Console.WriteLine("Client disconnected [ID: " + client_id + "]");
+
+			//Set connected to false
+			connected = false;
+
+			//Destroy
+			destroy();
 		}
-		
-		//Stop threads
-		public void abort()
+
+		//Send data
+		public void send(BufferStream _buffer)
 		{
+			//Begin sending data
+			socket.BeginSend(_buffer.Memory, 0, _buffer.Iterator, SocketFlags.None, new AsyncCallback(send_data), null);
+		}
+
+		public void send_to_world(BufferStream _buffer)
+		{
+			foreach (Client _client in server.client_list)
+			{
+				if (_client.world_name == world_name && world_name != "")
+				{
+					_client.send(_buffer);
+				}
+            }
+		}
+
+		//Send data callback
+		public void send_data(IAsyncResult AR)
+		{
+			//Get the data
+			int _data;
+
 			try
 			{
-				read_thread.Abort();
-				write_thread.Abort();
-				abort_thread.Abort();
+				//End sending
+				_data = socket.EndSend(AR);
 			}
-			catch (System.PlatformNotSupportedException)
+			catch (System.IO.IOException)
+			{
+				disconnect();
+				return;
+			}
+			catch (NullReferenceException)
+			{
+				disconnect();
+				return;
+			}
+			catch (ObjectDisposedException)
+			{
+				return;
+			}
+			catch (System.InvalidOperationException)
+			{
+				return;
+			}
+		}
+
+		//Receive data callback
+		public void receive_data(IAsyncResult AR)
+		{
+			//Get the data
+			int _data;
+
+			try
+			{
+				//End receiving
+				_data = socket.EndReceive(AR);
+
+				//Check for data length
+				if (_data > 0)
+				{
+					//Handle
+					read_buffer.Seek(0);
+					handler.handle(read_buffer);
+				} 
+				else 
+				{
+					disconnect();
+					return;
+				}
+
+				//Receive more data
+				if (connected)
+				{
+					read_buffer.ZeroMemory();
+					socket.BeginReceive(read_buffer.Memory, 0, BUFFER_SIZE, SocketFlags.None, new AsyncCallback(receive_data), null);
+				}
+			}
+			catch (System.IO.IOException)
+			{
+				disconnect();
+				return;
+			}
+			catch (NullReferenceException)
+			{
+				disconnect();
+				return;
+			}
+			catch (ObjectDisposedException)
 			{
 				//Do nothing.
 				return;
-			}
-			
-			//Disconnect
-			connected = false;
-		}
-		
-		//Write data
-		public void write()
-		{
-			while (true)
-			{
-				Thread.Sleep(5);
-				if (write_queue.Count != 0)
-				{
-					try
-					{
-						BufferStream buffer = write_queue.Dequeue();
-						NetworkStream stream = tcp_client.GetStream();
-						stream.Write(buffer.Memory, 0, buffer.Iterator);
-						stream.Flush();
-					}
-					catch (System.IO.IOException)
-					{
-						disconnect();
-						break;
-					}
-					catch (NullReferenceException)
-					{
-						disconnect();
-						break;
-					}
-					catch (ObjectDisposedException)
-					{
-						break;
-					}
-					catch (System.InvalidOperationException)
-					{
-						break;
-					}
-				}
-			}
-		}
-		
-		//Read data
-		public void read()
-		{
-			while (true)
-			{
-				try
-				{
-					Thread.Sleep(1);
-					BufferStream read_buffer = new BufferStream(buffer_size, 1);
-					NetworkStream stream     = tcp_client.GetStream();
-					stream.Read(read_buffer.Memory, 0, buffer_size);
-
-					//Handle data
-					handler.handle(read_buffer);
-				}
-				catch (System.IO.IOException)
-				{
-					disconnect();
-					break;
-				}
-				catch (NullReferenceException)
-				{
-					disconnect();
-					break;
-				}
-				catch (ObjectDisposedException)
-				{
-					//Do nothing.
-					break;
-				}
 			}
 		}
 	}

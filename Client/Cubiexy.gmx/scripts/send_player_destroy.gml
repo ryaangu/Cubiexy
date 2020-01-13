@@ -1,7 +1,7 @@
 ///send_player_destroy();
-buffer_seek(global.buffer, buffer_seek_start, 0);
+packet_clear();
 
-buffer_write(global.buffer, buffer_u16, DATA.PLAYER);
-buffer_write(global.buffer, buffer_u8, PLAYER.DESTROY);
+packet_write(USHORT, DATA.PLAYER);
+packet_write(BYTE,   PLAYER.DESTROY);
 
-network_send_raw(global.socket, global.buffer, buffer_tell(global.buffer));
+packet_send();

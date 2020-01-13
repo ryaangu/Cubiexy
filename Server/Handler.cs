@@ -1,14 +1,10 @@
 //Import resources
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
 using System.Net;
-using System.Threading;
-using System.Dynamic;
+using System.Net.Sockets;
+using System.Text;
 
-//Global namespace
 namespace Server
 {	
 	//Create the class
@@ -25,18 +21,16 @@ namespace Server
 		
 		//Default variables
 		public Client       client;
+		public BufferStream buffer;
 		public BufferStream read_buffer;
-		BufferStream        _buffer;
 		public bool         send_data = true;
 		
 		//Start the handler
-		public void start(Client _client)
+		public void start(BufferStream _buffer, Client _client)
 		{
-			//Set the client
+			//Set the variables
+			buffer = _buffer;
 			client = _client;
-			
-			//Create the buffer
-			_buffer = new BufferStream(20000, 1);
 		}
 		
 		//Handle data
@@ -48,13 +42,13 @@ namespace Server
 			//Get data
 			ushort _data_id;
 			read_buffer.Read(out _data_id);
-			
+
 			//Check for data id
 			switch (_data_id)
 			{
 				//Client
 				case (ushort) DATA.CLIENT: handle_client(); break;
-				
+			
 				//Account
 				case (ushort) DATA.ACCOUNT: handle_account(); break;
 				
@@ -66,6 +60,7 @@ namespace Server
 			}
 		}
 		
+
 		//CLIENT
 
 		//Enums
@@ -111,35 +106,35 @@ namespace Server
 		public void send_ping(uint time)
 		{
 			//Send back
-			_buffer.Seek(0);
+			buffer.Seek(0);
 			
 			ushort _data_id = (ushort) DATA.CLIENT;
 			byte _type = (byte) CLIENT.PING;
 			
-			_buffer.Write(_data_id);
-			_buffer.Write(_type);
-			_buffer.Write(time);
+			buffer.Write(_data_id);
+			buffer.Write(_type);
+			buffer.Write(time);
 			
-			client.send(_buffer);
+			client.send(buffer);
 		}
 		
 		//Send client data
 		public void send_client_data()
 		{
 			//Send back
-			_buffer.Seek(0);
+			buffer.Seek(0);
 			
 			ushort _data_id = (ushort) DATA.CLIENT;
 			byte _type = (byte) CLIENT.DATA;
 			ushort _client_id = (ushort) client.client_id;
 			
-			_buffer.Write(_data_id);
-			_buffer.Write(_type);
-			_buffer.Write(_client_id);
+			buffer.Write(_data_id);
+			buffer.Write(_type);
+			buffer.Write(_client_id);
 			
-			client.send(_buffer);
+			client.send(buffer);
 		}
-		
+
 
 		//ACCOUNT
 
@@ -224,17 +219,17 @@ namespace Server
 		public void send_account_register(bool result, string error)
 		{
 			//Send back
-			_buffer.Seek(0);
+			buffer.Seek(0);
 			
 			ushort _data_id = (ushort) DATA.ACCOUNT;
 			byte _type = (byte) ACCOUNT.REGISTER;
 			
-			_buffer.Write(_data_id);
-			_buffer.Write(_type);
-			_buffer.Write(result);
-			_buffer.Write(error);
+			buffer.Write(_data_id);
+			buffer.Write(_type);
+			buffer.Write(result);
+			buffer.Write(error);
 			
-			client.send(_buffer);
+			client.send(buffer);
 		}
 		
 		//Handle and send account login
@@ -307,18 +302,18 @@ namespace Server
 		public void send_account_login(bool result, string error, string username)
 		{
 			//Send back
-			_buffer.Seek(0);
+			buffer.Seek(0);
 			
 			ushort _data_id = (ushort) DATA.ACCOUNT;
 			byte _type = (byte) ACCOUNT.LOGIN;
 			
-			_buffer.Write(_data_id);
-			_buffer.Write(_type);
-			_buffer.Write(result);
-			_buffer.Write(error);
-			_buffer.Write(username);
+			buffer.Write(_data_id);
+			buffer.Write(_type);
+			buffer.Write(result);
+			buffer.Write(error);
+			buffer.Write(username);
 			
-			client.send(_buffer);
+			client.send(buffer);
 		}
 		
 		//Handle account logout
@@ -457,18 +452,18 @@ namespace Server
 		public void send_world_create(string world_name, bool result, string error)
 		{
 			//Send back
-			_buffer.Seek(0);
+			buffer.Seek(0);
 			
 			ushort _data_id = (ushort) DATA.WORLD;
 			byte _type = (byte) WORLD.CREATE;
 			
-			_buffer.Write(_data_id);
-			_buffer.Write(_type);
-			_buffer.Write(world_name);
-			_buffer.Write(result);
-			_buffer.Write(error);
+			buffer.Write(_data_id);
+			buffer.Write(_type);
+			buffer.Write(world_name);
+			buffer.Write(result);
+			buffer.Write(error);
 			
-			client.send(_buffer);
+			client.send(buffer);
 		}
 		
 		//Handle and send world enter
@@ -516,19 +511,19 @@ namespace Server
 		public void send_world_enter(bool result, string error, string world_name, string world_owner)
 		{
 			//Send back
-			_buffer.Seek(0);
+			buffer.Seek(0);
 			
 			ushort _data_id = (ushort) DATA.WORLD;
 			byte _type = (byte) WORLD.ENTER;
 			
-			_buffer.Write(_data_id);
-			_buffer.Write(_type);
-			_buffer.Write(result);
-			_buffer.Write(error);
-			_buffer.Write(world_name);
-			_buffer.Write(world_owner);
+			buffer.Write(_data_id);
+			buffer.Write(_type);
+			buffer.Write(result);
+			buffer.Write(error);
+			buffer.Write(world_name);
+			buffer.Write(world_owner);
 			
-			client.send(_buffer);
+			client.send(buffer);
 		}
 		
 		//Handle world save
@@ -610,19 +605,19 @@ namespace Server
 		public void send_world_set_block(byte layer_id, byte x, byte y, byte block_id)
 		{
 			//Send back
-			_buffer.Seek(0);
+			buffer.Seek(0);
 			
 			ushort _data_id = (ushort) DATA.WORLD;
 			byte _type = (byte) WORLD.SET_BLOCK;
 			
-			_buffer.Write(_data_id);
-			_buffer.Write(_type);
-			_buffer.Write(layer_id);
-			_buffer.Write(x);
-			_buffer.Write(y);
-			_buffer.Write(block_id);
+			buffer.Write(_data_id);
+			buffer.Write(_type);
+			buffer.Write(layer_id);
+			buffer.Write(x);
+			buffer.Write(y);
+			buffer.Write(block_id);
 			
-			client.send_to_world(_buffer);
+			client.send_to_world(buffer);
 		}
 
 		//Handle and send world load
@@ -727,36 +722,36 @@ namespace Server
 		public void send_player_update(string data, string username)
 		{
 			//Send back
-			_buffer.Seek(0);
+			buffer.Seek(0);
 			
 			ushort _data_id = (ushort) DATA.PLAYER;
 			byte _type = (byte) PLAYER.UPDATE;
 			ushort _client_id = (ushort) client.client_id;
 			
-			_buffer.Write(_data_id);
-			_buffer.Write(_type);
-			_buffer.Write(_client_id);
-			_buffer.Write(data);
-			_buffer.Write(username);
+			buffer.Write(_data_id);
+			buffer.Write(_type);
+			buffer.Write(_client_id);
+			buffer.Write(data);
+			buffer.Write(username);
 			
-			client.send_to_world(_buffer);
+			client.send_to_world(buffer);
 		}
 		
 		//Handle player destroy
 		public void handle_player_destroy()
 		{
 			//Send back
-			_buffer.Seek(0);
+			buffer.Seek(0);
 			
 			ushort _data_id = (ushort) DATA.PLAYER;
 			byte _type = (byte) PLAYER.DESTROY;
 			ushort _client_id = (ushort) client.client_id;
 			
-			_buffer.Write(_data_id);
-			_buffer.Write(_type);
-			_buffer.Write(_client_id);
+			buffer.Write(_data_id);
+			buffer.Write(_type);
+			buffer.Write(_client_id);
 			
-			client.send_to_world(_buffer);
+			client.send_to_world(buffer);
 		}
 	}
 }

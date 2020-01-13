@@ -1,10 +1,10 @@
 ///handle_world_set_block();
 
 //Read data
-var _layer_id = buffer_read(read_buffer, buffer_u8),
-    _x        = buffer_read(read_buffer, buffer_u8),
-    _y        = buffer_read(read_buffer, buffer_u8),
-    _block_id = buffer_read(read_buffer, buffer_u8);
+var _layer_id = packet_read(BYTE),
+    _x        = packet_read(BYTE),
+    _y        = packet_read(BYTE),
+    _block_id = packet_read(BYTE);
     
 //Set the block
 world_set_block(_layer_id, _x * BLOCK_SIZE, _y * BLOCK_SIZE, _block_id);

@@ -30,7 +30,7 @@ if (!surface_exists(_surface))
         //Check if the block id is not null
         if (_block_id > BLOCK.NULL)
         {
-            //Shadow control
+            /*//Shadow control
             var _radius = 0,
                 _dist   = 1;
             
@@ -46,11 +46,11 @@ if (!surface_exists(_surface))
                     _radius++;
                     _dist = _radius;
                 }
-            }
+            }*/
             
             //Get the block color
             var _color = c_white;
-            if (database_get_block(_block_id, BLOCK_INFORMATION.SHADOW)) _color = merge_colour(c_white, c_gray, (_dist - 1) / shadow_distance);
+            //if (database_get_block(_block_id, BLOCK_INFORMATION.SHADOW)) _color = merge_colour(c_white, c_gray, (_dist - 1) / shadow_distance);
         
             //Draw the block
             draw_block(_block_id, _x * BLOCK_SIZE, _y * BLOCK_SIZE, BLOCK_SIZE, _color);

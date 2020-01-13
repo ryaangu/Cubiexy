@@ -12,6 +12,8 @@ var _x_previous = _x,
 _x = _x div BLOCK_SIZE;
 _y = _y div BLOCK_SIZE;
 
+show_debug_message(string_position(_x, _y));
+
 //Check for position inside grid
 if (ds_grid_check(global.world_grid[_layer], _x, _y))
 {

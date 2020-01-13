@@ -1,9 +1,9 @@
 ///handle_player_update();
 
 //Read data
-var _client_id    = buffer_read(read_buffer, buffer_u16),
-    _data         = buffer_read(read_buffer, buffer_string),
-    _name         = buffer_read(read_buffer, buffer_string);
+var _client_id    = packet_read(USHORT),
+    _data         = packet_read(STRING),
+    _name         = packet_read(STRING);
     
 //Check if same client id
 if (_client_id == global.client_id) return false;

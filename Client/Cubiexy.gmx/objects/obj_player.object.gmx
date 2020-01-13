@@ -104,7 +104,7 @@ if (update)
     send_player_update();
     update = false;
 }
-alarm[0] = 1.1;
+alarm[0] = 1.2;
 </string>
           </argument>
         </arguments>
@@ -255,7 +255,10 @@ else
 
 //Player direction
 if (move != 0 &amp;&amp; image_xscale != move)
+{
     image_xscale = move;
+    update       = true;
+}
  
 //Editing animation   
 if (sprite_index != spr_player_attack &amp;&amp; _key_attack)
@@ -321,7 +324,6 @@ else
     _layer = LAYER.FOREGROUND;
 
 send_world_set_block(global.world_name, _layer, mouse_x div BLOCK_SIZE, mouse_y div BLOCK_SIZE, 0);
-send_world_enter(global.world_name);
 </string>
           </argument>
         </arguments>

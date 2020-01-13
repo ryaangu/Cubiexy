@@ -18,5 +18,5 @@ for (var _chunk_y = _reload_up;   _chunk_y <= _reload_down;  _chunk_y++)
 for (var _chunk_x = _reload_left; _chunk_x <= _reload_right; _chunk_x++)
 {
     //Destroy the chunk
-    chunk_destroy(_layer, _chunk_x, _chunk_y);
+    chunk_render_update(_layer, _chunk_x, _chunk_y, _x div BLOCK_SIZE, _y div BLOCK_SIZE);
 }

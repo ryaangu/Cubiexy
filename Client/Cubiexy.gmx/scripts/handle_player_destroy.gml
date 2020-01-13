@@ -1,7 +1,7 @@
 ///handle_player_destroy();
 
 //Read data
-var _client_id = buffer_read(read_buffer, buffer_u16);
+var _client_id = packet_read(USHORT);
 
 //Check if same client id
 if (_client_id == global.client_id) return false;

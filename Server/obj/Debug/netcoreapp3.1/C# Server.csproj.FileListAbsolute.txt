@@ -1,0 +1,11 @@
+C:\Users\hp\Desktop\C# Server\obj\Debug\netcoreapp3.1\C# Server.csprojAssemblyReference.cache
+C:\Users\hp\Desktop\C# Server\obj\Debug\netcoreapp3.1\C# Server.AssemblyInfoInputs.cache
+C:\Users\hp\Desktop\C# Server\obj\Debug\netcoreapp3.1\C# Server.AssemblyInfo.cs
+C:\Users\hp\Desktop\C# Server\bin\Debug\netcoreapp3.1\C# Server.exe
+C:\Users\hp\Desktop\C# Server\bin\Debug\netcoreapp3.1\C# Server.deps.json
+C:\Users\hp\Desktop\C# Server\bin\Debug\netcoreapp3.1\C# Server.runtimeconfig.json
+C:\Users\hp\Desktop\C# Server\bin\Debug\netcoreapp3.1\C# Server.runtimeconfig.dev.json
+C:\Users\hp\Desktop\C# Server\bin\Debug\netcoreapp3.1\C# Server.dll
+C:\Users\hp\Desktop\C# Server\bin\Debug\netcoreapp3.1\C# Server.pdb
+C:\Users\hp\Desktop\C# Server\obj\Debug\netcoreapp3.1\C# Server.dll
+C:\Users\hp\Desktop\C# Server\obj\Debug\netcoreapp3.1\C# Server.pdb

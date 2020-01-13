@@ -1,99 +1,90 @@
 //Import resources
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
 using System.Net;
-using System.Threading;
+using System.Net.Sockets;
+using System.Text;
 
-//Global namespace
 namespace Server
 {
 	//Create the class
 	public class Server
 	{
 		//Default variables
-		public int port = 0;
-		
+		public const string IP   = "127.0.0.1";
+		public const int    PORT = 9700;
+
 		//Client variables
-		public List<Client> client_list;
-		public List<string> accounts_online;
-		
+		public List<Socket> socket_list     = new List<Socket>();
+		public List<Client> client_list     = new List<Client>();
+		public List<string> accounts_online = new List<string>();
+
 		public int client_id = 1;
-		
-		Thread      tcp_thread;
-		TcpListener tcp_listener = null;
-		
+
+		//Socket variables
+		public Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
 		//Start the server
-		public void start(int tcp_port)
+		public void start()
 		{
-			//Set the port
-			port = tcp_port;
-			
-			//Create the lists
-			client_list     = new List<Client>();
-			accounts_online = new List<string>();
-			
-			//Start listening to new connections
-			tcp_thread = new Thread(new ThreadStart(delegate 
-			{
-				listen();
-			}));
-			
-			tcp_thread.Start();
+			//Bind, listen and start receiving new connections
+			socket.Bind(new IPEndPoint(IPAddress.Parse(IP), PORT));
+			socket.Listen(100);
+			socket.BeginAccept(new AsyncCallback(accept_connection), null);
+
+			//Show console message
+			Console.WriteLine("Server started!");
+
+			//Close when pressing enter
+			Console.ReadLine();
+
+			//Destroy
+			destroy();
 		}
-		
-		//Stop the server
-		public void stop()
+
+		//Destroy everything
+		public void destroy()
 		{
-			//Stop listening
-			tcp_listener.Stop();
-			
-			//Abort threading
-			tcp_thread.Abort();
-			
-			//Close and abort client stuff
-			foreach (Client client in client_list)
+			//Shutdown and close all sockets
+			foreach (Client _client in client_list)
 			{
-				client.tcp_client.GetStream().Close();
-				client.tcp_client.Close();
-				client.read_thread.Abort();
-				client.write_thread.Abort();
+				_client.disconnect();
 			}
-			
-			//Clear client list
-			client_list.Clear();
+
+			//Shutdown and Close server socket
+			socket.Shutdown(SocketShutdown.Both);
+			socket.Close();
 		}
-		
-		//Listen to new connections
-		private void listen()
+
+		//Accept connection callback
+		public void accept_connection(IAsyncResult AR)
 		{
-			//Create tcp listener
-			tcp_listener = new TcpListener(IPAddress.Any, port);
-			tcp_listener.Start();
-			
-			//Handle connections
-			while (true)
+			//Show console message
+			Console.WriteLine("Client connected [ID: " + client_id + "]");
+
+			Socket _socket;
+
+			//Get the socket
+			try
 			{
-				Thread.Sleep(10);
-				
-				//Accept the connection
-				TcpClient tcp_client = tcp_listener.AcceptTcpClient();
-				
-				//Show console message
-				Console.WriteLine("Client connected! [" + client_id + "]");
-				
-				//Create and start the client
-				Client client = new Client();
-					   client.start(tcp_client, this, client_id);
-						 
-				//Add the client to client list
-				client_list.Add(client);
-				
-				//Increase client id
-				client_id += 1;
+				_socket = socket.EndAccept(AR);
+			} catch (ObjectDisposedException)
+			{
+				return;
 			}
+
+			//Add the socket to the list
+			socket_list.Add(_socket);
+
+			//Create the client and add the to list
+			Client _client = new Client(_socket, this, client_id);
+			client_list.Add(_client);
+
+			//Increase client id
+			client_id += 1;
+
+			//Accept new connection
+			socket.BeginAccept(new AsyncCallback(accept_connection), null);
 		}
 	}
 }

@@ -1,8 +1,0 @@
-C:\Users\hp\Desktop\Cubiexy\Server\bin\Debug\netstandard2.0\Server.deps.json
-C:\Users\hp\Desktop\Cubiexy\Server\bin\Debug\netstandard2.0\Server.dll
-C:\Users\hp\Desktop\Cubiexy\Server\bin\Debug\netstandard2.0\Server.pdb
-C:\Users\hp\Desktop\Cubiexy\Server\obj\Debug\netstandard2.0\Server.csprojAssemblyReference.cache
-C:\Users\hp\Desktop\Cubiexy\Server\obj\Debug\netstandard2.0\Server.AssemblyInfoInputs.cache
-C:\Users\hp\Desktop\Cubiexy\Server\obj\Debug\netstandard2.0\Server.AssemblyInfo.cs
-C:\Users\hp\Desktop\Cubiexy\Server\obj\Debug\netstandard2.0\Server.dll
-C:\Users\hp\Desktop\Cubiexy\Server\obj\Debug\netstandard2.0\Server.pdb

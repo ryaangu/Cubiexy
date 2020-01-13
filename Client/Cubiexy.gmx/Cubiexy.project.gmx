@@ -53,53 +53,69 @@
   </backgrounds>
   <paths name="paths"/>
   <scripts name="scripts">
-    <scripts name="Handler">
-      <script>scripts\client_init.gml</script>
-      <scripts name="Handle">
-        <script>scripts\handler.gml</script>
-        <scripts name="Client">
-          <script>scripts\handle_client.gml</script>
-          <script>scripts\handle_ping.gml</script>
-          <script>scripts\handle_client_data.gml</script>
-        </scripts>
-        <scripts name="Account">
-          <script>scripts\handle_account.gml</script>
-          <script>scripts\handle_account_register.gml</script>
-          <script>scripts\handle_account_login.gml</script>
-        </scripts>
-        <scripts name="World">
-          <script>scripts\handle_world.gml</script>
-          <script>scripts\handle_world_create.gml</script>
-          <script>scripts\handle_world_enter.gml</script>
-          <script>scripts\handle_world_set_block.gml</script>
-          <script>scripts\handle_world_load.gml</script>
-        </scripts>
-        <scripts name="Player">
-          <script>scripts\handle_player.gml</script>
-          <script>scripts\handle_player_update.gml</script>
-          <script>scripts\handle_player_destroy.gml</script>
-        </scripts>
+    <scripts name="Networking">
+      <scripts name="Packet">
+        <script>scripts\packet_clear.gml</script>
+        <script>scripts\packet_write.gml</script>
+        <script>scripts\packet_read.gml</script>
+        <script>scripts\packet_send.gml</script>
       </scripts>
-      <scripts name="Send">
-        <scripts name="Client">
-          <script>scripts\send_ping.gml</script>
-        </scripts>
-        <scripts name="Account">
-          <script>scripts\send_account_register.gml</script>
-          <script>scripts\send_account_login.gml</script>
-          <script>scripts\send_account_logout.gml</script>
-        </scripts>
-        <scripts name="World">
-          <script>scripts\send_world_create.gml</script>
-          <script>scripts\send_world_enter.gml</script>
-          <script>scripts\send_world_save.gml</script>
-          <script>scripts\send_world_set_block.gml</script>
-          <script>scripts\send_world_load.gml</script>
-          <script>scripts\send_world_leave.gml</script>
-        </scripts>
-        <scripts name="Player">
-          <script>scripts\send_player_update.gml</script>
-          <script>scripts\send_player_destroy.gml</script>
+      <scripts name="Client">
+        <script>scripts\client_init.gml</script>
+        <scripts name="Handler">
+          <script>scripts\handler.gml</script>
+          <scripts name="Handle">
+            <scripts name="Client">
+              <scripts name="Handle">
+                <script>scripts\handle_client.gml</script>
+                <script>scripts\handle_ping.gml</script>
+                <script>scripts\handle_client_data.gml</script>
+              </scripts>
+              <scripts name="Send">
+                <script>scripts\send_ping.gml</script>
+              </scripts>
+            </scripts>
+            <scripts name="Account">
+              <scripts name="Handle">
+                <script>scripts\handle_account.gml</script>
+                <script>scripts\handle_account_register.gml</script>
+                <script>scripts\handle_account_login.gml</script>
+              </scripts>
+              <scripts name="Send">
+                <script>scripts\send_account_register.gml</script>
+                <script>scripts\send_account_login.gml</script>
+                <script>scripts\send_account_logout.gml</script>
+              </scripts>
+            </scripts>
+            <scripts name="World">
+              <scripts name="Handle">
+                <script>scripts\handle_world.gml</script>
+                <script>scripts\handle_world_create.gml</script>
+                <script>scripts\handle_world_enter.gml</script>
+                <script>scripts\handle_world_set_block.gml</script>
+                <script>scripts\handle_world_load.gml</script>
+              </scripts>
+              <scripts name="Send">
+                <script>scripts\send_world_create.gml</script>
+                <script>scripts\send_world_enter.gml</script>
+                <script>scripts\send_world_save.gml</script>
+                <script>scripts\send_world_set_block.gml</script>
+                <script>scripts\send_world_load.gml</script>
+                <script>scripts\send_world_leave.gml</script>
+              </scripts>
+            </scripts>
+            <scripts name="Player">
+              <scripts name="Handle">
+                <script>scripts\handle_player.gml</script>
+                <script>scripts\handle_player_update.gml</script>
+                <script>scripts\handle_player_destroy.gml</script>
+              </scripts>
+              <scripts name="Send">
+                <script>scripts\send_player_update.gml</script>
+                <script>scripts\send_player_destroy.gml</script>
+              </scripts>
+            </scripts>
+          </scripts>
         </scripts>
       </scripts>
     </scripts>
@@ -198,6 +214,7 @@
         </scripts>
         <scripts name="Render">
           <script>scripts\chunk_render.gml</script>
+          <script>scripts\chunk_render_update.gml</script>
         </scripts>
       </scripts>
       <scripts name="Data">
@@ -275,7 +292,7 @@
       <room>rooms\rm_world</room>
     </rooms>
   </rooms>
-  <constants number="9">
+  <constants number="19">
     <constant name="GAME_MESSAGE">"PLEASE DO NOT SHARE THIS VERSION!"</constant>
     <constant name="GAME_VERSION">"ALPHA 0.0.1"</constant>
     <constant name="DEBUG">true</constant>
@@ -285,6 +302,16 @@
     <constant name="CHUNK_SIZE">10</constant>
     <constant name="WORLD_WIDTH">CHUNK_MAX_HORIZONTAL * CHUNK_SIZE * BLOCK_SIZE</constant>
     <constant name="WORLD_HEIGHT">CHUNK_MAX_VERTICAL       * CHUNK_SIZE * BLOCK_SIZE</constant>
+    <constant name="BUFFER_SIZE">20000</constant>
+    <constant name="BOOL">buffer_bool</constant>
+    <constant name="BYTE">buffer_u8</constant>
+    <constant name="STRING">buffer_string</constant>
+    <constant name="INT">buffer_s32</constant>
+    <constant name="UINT">buffer_u32</constant>
+    <constant name="DOUBLE">buffer_f64</constant>
+    <constant name="FLOAT">buffer_f32</constant>
+    <constant name="SHORT">buffer_s16</constant>
+    <constant name="USHORT">buffer_u16</constant>
   </constants>
   <help>
     <rtf>help.rtf</rtf>

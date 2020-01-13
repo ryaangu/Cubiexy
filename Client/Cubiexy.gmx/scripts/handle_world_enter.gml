@@ -1,10 +1,10 @@
 ///handle_world_enter();
 
 //Read data
-var _result      = buffer_read(read_buffer, buffer_bool),
-    _error       = buffer_read(read_buffer, buffer_string),
-    _world_name  = buffer_read(read_buffer, buffer_string),
-    _world_owner = buffer_read(read_buffer, buffer_string);
+var _result      = packet_read(BOOL),
+    _error       = packet_read(STRING),
+    _world_name  = packet_read(STRING),
+    _world_owner = packet_read(STRING);
     
 //Show notification
 show_notification(_error);

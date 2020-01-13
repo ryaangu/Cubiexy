@@ -49,7 +49,7 @@ block_init();
         </arguments>
       </action>
     </event>
-    <event eventtype="1" enumb="0">
+    <event eventtype="7" enumb="3">
       <action>
         <libid>1</libid>
         <id>603</id>
@@ -66,7 +66,7 @@ block_init();
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>///Destroy the player map
+            <string>///Destroy the data structures
 ds_map_destroy(global.player_map);
 ds_map_destroy(global.block_database);
 ds_map_destroy(global.item_database);
