@@ -28,6 +28,13 @@
             <string>///Initialize the other player
 client_id = -1;
 name      = "";
+
+//Sprite control
+sprite_idle   = spr_shark_idle;
+sprite_run    = spr_shark_run;
+sprite_jump   = spr_shark_jump;
+sprite_fall   = spr_shark_fall;
+sprite_attack = spr_shark_attack;
 </string>
           </argument>
         </arguments>
@@ -51,10 +58,10 @@ name      = "";
           <argument>
             <kind>1</kind>
             <string>///Check for attack animation
-if (sprite_index == spr_player_attack)
+if (sprite_index == sprite_attack)
 {
     //Reset sprite
-    sprite_index = spr_player_idle;
+    sprite_index = sprite_idle;
     image_speed  = 0.25;
 }
 </string>

@@ -68,7 +68,8 @@ namespace Server
 			try
 			{
 				_socket = socket.EndAccept(AR);
-			} catch (ObjectDisposedException)
+			} 
+			catch (ObjectDisposedException)
 			{
 				return;
 			}

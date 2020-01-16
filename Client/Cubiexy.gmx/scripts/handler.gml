@@ -1,5 +1,4 @@
-///handler(read_buffer);
-read_buffer = argument[0];
+///handler();
 
 //Read data
 var _data_id = packet_read(USHORT),
@@ -19,4 +18,7 @@ switch (_data_id)
     
     //Player
     case DATA.PLAYER: handle_player(_type); break;
+    
+    //Chat
+    case DATA.CHAT: handle_chat(_type); break;
 }

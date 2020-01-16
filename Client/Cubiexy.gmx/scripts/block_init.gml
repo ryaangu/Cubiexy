@@ -10,7 +10,8 @@ enum BLOCK
     STONE           = 4,
     LEAVES          = 5,
     LOGS            = 6, 
-    DIRT_BACKGROUND = 7
+    DIRT_BACKGROUND = 7,
+    COUNT           = 8
 }
 
 

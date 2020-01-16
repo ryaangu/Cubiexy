@@ -8,8 +8,8 @@ var _layer   = argument[0],
 show_debug_message(string_position(_x, _y));
     
 //Get the block positions
-var _block_x = _chunk_x * CHUNK_SIZE * BLOCK_SIZE + _x,
-    _block_y = _chunk_y * CHUNK_SIZE * BLOCK_SIZE + _y;
+var _block_x = _x / BLOCK_SIZE,//_chunk_x * CHUNK_SIZE * BLOCK_SIZE + _x,
+    _block_y = _y / BLOCK_SIZE;//_chunk_y * CHUNK_SIZE * BLOCK_SIZE + _y;
     
 show_debug_message(string_position(_block_x, _block_y));
     

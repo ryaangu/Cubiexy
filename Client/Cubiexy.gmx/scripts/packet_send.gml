@@ -1,5 +1,8 @@
 ///packet_send();
 
+//Check for connection
+if (!global.connected) return false;
+
 //Send the message
 var _sent = network_send_raw(global.socket, global.buffer, buffer_tell(global.buffer));
 

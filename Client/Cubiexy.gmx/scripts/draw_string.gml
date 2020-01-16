@@ -7,7 +7,7 @@ var _x            = argument[0],
     
 //Draw the shadow string
 draw_set_color(_shadow_color);
-draw_text(_x + 1, _y + 1, _string);
+draw_text(_x + 1.3, _y + 1.3, _string);
 
 //Draw the normal string
 draw_set_color(_string_color);

@@ -11,7 +11,7 @@ namespace Server
 	public class Client
 	{
 		//Default variables
-		public const int BUFFER_SIZE = 20000;
+		public const int BUFFER_SIZE = 100000;
 
 		public BufferStream  buffer       = new BufferStream(BUFFER_SIZE, 1);
 		BufferStream         read_buffer  = new BufferStream(BUFFER_SIZE, 1);
@@ -34,13 +34,14 @@ namespace Server
 			client_id = _client_id;
 
 			//Begin receiving data
-			read_buffer.ZeroMemory();
 			socket.BeginReceive(read_buffer.Memory, 0, BUFFER_SIZE, SocketFlags.None, new AsyncCallback(receive_data), null);
 		
 			//Create and start handler
 			handler = new Handler();
 			handler.start(buffer, this);
 		}
+
+		public void stackResize(){}
 
 		//Destroy everything
 		public void destroy()
@@ -52,27 +53,33 @@ namespace Server
 			//Shutdown and Close the socket
 			socket.Shutdown(SocketShutdown.Both);
 			socket.Close();
+
+			//Set connected to false
+			connected = false;
 		}
 
 		//Disconnect
 		public void disconnect()
 		{
-			//Destroy the player
+			//Leave from world
 			if (world_name != "")
 			{
-				handler.handle_player_destroy();
-				handler.handle_world_leave();
+				//Reset world name
+				world_name = "";
 			}
 			
 			//Leave from account
 			if (username != "")
-				handler.handle_account_logout();
+			{
+				//Remove account from accounts online
+				server.accounts_online.Remove(username);
+			
+				//Reset username
+				username = "";
+			}
 
 			//Show console message
 			Console.WriteLine("Client disconnected [ID: " + client_id + "]");
-
-			//Set connected to false
-			connected = false;
 
 			//Destroy
 			destroy();
@@ -81,8 +88,34 @@ namespace Server
 		//Send data
 		public void send(BufferStream _buffer)
 		{
-			//Begin sending data
-			socket.BeginSend(_buffer.Memory, 0, _buffer.Iterator, SocketFlags.None, new AsyncCallback(send_data), null);
+			try
+			{
+				//Begin sending data
+				socket.BeginSend(_buffer.Memory, 0, _buffer.Iterator, SocketFlags.None, new AsyncCallback(send_data), null);
+			}
+			catch (SocketException)
+			{
+				disconnect();
+				return;
+			}
+			catch (System.IO.IOException)
+			{
+				disconnect();
+				return;
+			}
+			catch (NullReferenceException)
+			{
+				disconnect();
+				return;
+			}
+			catch (ObjectDisposedException)
+			{
+				return;
+			}
+			catch (System.InvalidOperationException)
+			{
+				return;
+			}
 		}
 
 		public void send_to_world(BufferStream _buffer)
@@ -90,6 +123,25 @@ namespace Server
 			foreach (Client _client in server.client_list)
 			{
 				if (_client.world_name == world_name && world_name != "")
+				{
+					_client.send(_buffer);
+				}
+            }
+		}
+
+		public void send_to_everyone(BufferStream _buffer)
+		{
+			foreach (Client _client in server.client_list)
+			{
+				_client.send(_buffer);
+            }
+		}
+
+		public void send_to(BufferStream _buffer, string _username)
+		{
+			foreach (Client _client in server.client_list)
+			{
+				if (_client.username == _username)
 				{
 					_client.send(_buffer);
 				}
@@ -106,6 +158,16 @@ namespace Server
 			{
 				//End sending
 				_data = socket.EndSend(AR);
+
+				buffer.Seek(0);
+				ushort d;
+				buffer.Read(out d);
+				Console.WriteLine("Sent: " + d);
+			}
+			catch (SocketException)
+			{
+				disconnect();
+				return;
 			}
 			catch (System.IO.IOException)
 			{
@@ -144,19 +206,20 @@ namespace Server
 					//Handle
 					read_buffer.Seek(0);
 					handler.handle(read_buffer);
+
+					//Receive more data
+					socket.BeginReceive(read_buffer.Memory, 0, BUFFER_SIZE, SocketFlags.None, new AsyncCallback(receive_data), null);
 				} 
 				else 
 				{
 					disconnect();
 					return;
 				}
-
-				//Receive more data
-				if (connected)
-				{
-					read_buffer.ZeroMemory();
-					socket.BeginReceive(read_buffer.Memory, 0, BUFFER_SIZE, SocketFlags.None, new AsyncCallback(receive_data), null);
-				}
+			}
+			catch (SocketException)
+			{
+				disconnect();
+				return;
 			}
 			catch (System.IO.IOException)
 			{

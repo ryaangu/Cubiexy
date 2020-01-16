@@ -3,7 +3,7 @@
   <spriteName>&lt;undefined&gt;</spriteName>
   <solid>0</solid>
   <visible>-1</visible>
-  <depth>0</depth>
+  <depth>-10000</depth>
   <persistent>-1</persistent>
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
@@ -38,9 +38,23 @@ global.worlds_created = ds_list_create();
 //Create the player map
 global.player_map = ds_map_create();
 
-//Database variables
-global.block_database = ds_map_create();
-global.item_database  = ds_map_create();
+//Database variables 
+global.block_database   = ds_map_create();
+global.item_database    = ds_map_create();
+global.command_database = ds_map_create();
+
+//Chat variables
+global.chat_list          = ds_list_create();
+global.chat_commands      = ds_list_create();
+global.command_permission = COMMAND_PERMISSION.EVERYONE;
+
+//Global variables
+global.debug             = false;
+global.message           = "";
+global.version           = "";
+global.maintenance       = false;
+global.staff             = "";
+global.staff_permission  = false;
 
 //Initialize the blocks
 block_init();
@@ -49,7 +63,7 @@ block_init();
         </arguments>
       </action>
     </event>
-    <event eventtype="7" enumb="3">
+    <event eventtype="1" enumb="0">
       <action>
         <libid>1</libid>
         <id>603</id>
@@ -70,7 +84,10 @@ block_init();
 ds_map_destroy(global.player_map);
 ds_map_destroy(global.block_database);
 ds_map_destroy(global.item_database);
+ds_map_destroy(global.command_database);
 ds_list_destroy(global.worlds_created);
+ds_list_destroy(global.chat_list);
+ds_list_destroy(global.chat_commands);
 </string>
           </argument>
         </arguments>
@@ -94,7 +111,7 @@ ds_list_destroy(global.worlds_created);
           <argument>
             <kind>1</kind>
             <string>///Draw information
-if (DEBUG)
+if (global.debug)
 {
     draw_set(-1, 0.50, fnt_debug);
     draw_string(20, 20, "-- DEBUG INFORMATION --", c_yellow, c_black);

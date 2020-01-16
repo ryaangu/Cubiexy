@@ -11,4 +11,4 @@ with (obj_textbox)
         _text = text;
 }
 
-return string_replace_all(_text, "\#", "#");;
+return string_replace_all(_text, "\#", "#");

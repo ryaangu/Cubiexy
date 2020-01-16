@@ -3,16 +3,6 @@ var _layer    = argument[0],
     _x        = argument[1],
     _y        = argument[2],
     _block_id = argument[3];
-    
-//Get the previous position
-var _x_previous = _x,
-    _y_previous = _y;
-    
-//Divide the positions
-_x = _x div BLOCK_SIZE;
-_y = _y div BLOCK_SIZE;
-
-show_debug_message(string_position(_x, _y));
 
 //Check for position inside grid
 if (ds_grid_check(global.world_grid[_layer], _x, _y))
@@ -20,6 +10,12 @@ if (ds_grid_check(global.world_grid[_layer], _x, _y))
     //Set the block
     ds_grid_set(global.world_grid[_layer], _x, _y, _block_id);
     
-    //Update the chunks
-    chunk_update(_layer, _x_previous, _y_previous);
+    //Punch the surface
+    surface_set_target(global.world_surface[_layer]);
+    draw_null_block(_x * BLOCK_SIZE, _y * BLOCK_SIZE);
+    
+    if (_block_id > BLOCK.NULL)
+        draw_block(_block_id, _x * BLOCK_SIZE, _y * BLOCK_SIZE, BLOCK_SIZE, c_white);
+    
+    surface_reset_target();
 }

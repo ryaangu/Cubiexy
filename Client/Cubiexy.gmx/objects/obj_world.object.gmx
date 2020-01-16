@@ -27,21 +27,19 @@
             <kind>1</kind>
             <string>///Initialize the world
 
-//Chunk variables
-load_distance   = 1;
-unload_distance = 1;
-reload_distance = 1;
-shadow_distance = 5;
-
 //Create the grids
 for (var _layer = 0; _layer &lt; LAYER.COUNT; _layer++)
 {
-    global.world_grid[_layer]   = ds_grid_create_ext(CHUNK_MAX_HORIZONTAL * CHUNK_SIZE, CHUNK_MAX_VERTICAL * CHUNK_SIZE, BLOCK.NULL);
-    global.surface_grid[_layer] = ds_grid_create_ext(CHUNK_MAX_HORIZONTAL, CHUNK_MAX_VERTICAL, -1);
+    global.world_grid[_layer]    = ds_grid_create_ext(100, 50, BLOCK.NULL);
+    global.world_surface[_layer] = -1;
 }
 
 //Create the player
 instance_create(WORLD_WIDTH/2, WORLD_HEIGHT/2, obj_player);
+
+//Send chat message
+chat_add_message(global.message);
+send_chat_world("~GSYSTEM: " + string(obj_player.name) + " ~Gentered " + string(global.world_name) + "!");
 </string>
           </argument>
         </arguments>
@@ -109,7 +107,56 @@ else if (pos == -1)
 for (var _layer = 0; _layer &lt; LAYER.COUNT; _layer++)
 {
     ds_grid_destroy(global.world_grid[_layer]);
-    ds_grid_destroy(global.surface_grid[_layer]);
+    surface_free(global.world_surface[_layer]);
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="3" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Update the world surface
+for (var _layer = 0; _layer &lt; LAYER.COUNT; _layer++)
+{
+    //Check if surface does not exists
+    if (!surface_exists(global.world_surface[_layer]))
+    {
+        //Create the surface
+        global.world_surface[_layer] = surface_create(room_width, room_height);
+    
+        //Settings
+        surface_set_target(global.world_surface[_layer]);
+        draw_clear_alpha(c_black, 0);
+        
+        //Draw the blocks
+        for (var _y = 0; _y &lt; WORLD_HEIGHT div BLOCK_SIZE; _y++)
+        for (var _x = 0; _x &lt; WORLD_WIDTH  div BLOCK_SIZE; _x++)
+        {
+            //Get the block and draw it
+            var _block_id = world_get_block(_layer, _x, _y);
+            
+            if (_block_id &gt; BLOCK.NULL)
+                draw_block(_block_id, _x * BLOCK_SIZE, _y * BLOCK_SIZE, BLOCK_SIZE, c_white);
+        }
+        
+        surface_reset_target();   
+    }
 }
 </string>
           </argument>
@@ -134,6 +181,8 @@ for (var _layer = 0; _layer &lt; LAYER.COUNT; _layer++)
           <argument>
             <kind>1</kind>
             <string>///Leave from the world
+send_chat_world("~GSYSTEM: " + string(obj_player.name) + " ~Gleft.");
+send_player_destroy();
 send_world_leave();
 </string>
           </argument>
@@ -157,13 +206,33 @@ send_world_leave();
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>///Render the world
-world_render();
+            <string>///Draw the world
+
+//Draw the surfaces
+for (var _layer = 0; _layer &lt; LAYER.COUNT; _layer++)
+{
+    //Check if the surface exists
+    if (surface_exists(global.world_surface[_layer]))
+    {
+        //Draw the surface shadow
+        if (_layer == LAYER.FOREGROUND) draw_surface_ext(global.world_surface[_layer], 5, 5, 1, 1, 0, c_black, 0.70); //Foreground block shadow
+        
+        //Draw the players shadow
+        with (obj_other_player) draw_sprite_ext(sprite_index, image_index, x + 2, y + 2, image_xscale, image_yscale, image_angle, c_black, 0.60);
+        with (obj_player) draw_sprite_ext(sprite_index, image_index, x + 2, y + 2, image_xscale, image_yscale, image_angle, c_black, 0.60);
+        
+        //Draw the surface
+        draw_surface(global.world_surface[_layer], 0, 0); 
+        
+        //Draw the surface color
+        if (_layer == LAYER.BACKGROUND) draw_surface_ext(global.world_surface[_layer], 0, 0, 1, 1, 0, c_black, 0.30); //Background block color                    
+    }
+}
 
 //Render block hovering
 for (var _layer = 0; _layer &lt; LAYER.COUNT; _layer++)
 {
-    if (mouse_check_button(mb_left) &amp;&amp; world_get_block(_layer, mouse_x, mouse_y) != BLOCK.NULL)
+    if (mouse_check_button(mb_left) &amp;&amp; world_get_block(_layer, mouse_x div BLOCK_SIZE, mouse_y div BLOCK_SIZE) != BLOCK.NULL)
     {
         draw_sprite_ext(spr_block_mask, 0, mouse_x div BLOCK_SIZE * BLOCK_SIZE, mouse_y div BLOCK_SIZE * BLOCK_SIZE, 1, 1, 0, c_black, 0.70);
     }

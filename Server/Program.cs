@@ -12,6 +12,9 @@ namespace Server
             //Create and start the server
             Server _server = new Server();
             	   _server.start();
+
+            //Show console message
+            Console.WriteLine("Server started!");
         }
     }
 }

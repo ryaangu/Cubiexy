@@ -7,4 +7,4 @@ var _layer_id = packet_read(BYTE),
     _block_id = packet_read(BYTE);
     
 //Set the block
-world_set_block(_layer_id, _x * BLOCK_SIZE, _y * BLOCK_SIZE, _block_id);
+world_set_block(_layer_id, _x, _y, _block_id);

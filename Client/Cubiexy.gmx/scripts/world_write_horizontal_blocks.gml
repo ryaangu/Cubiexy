@@ -7,7 +7,7 @@ var _data = "";
 
 for (var _x = 0; _x < WORLD_WIDTH div BLOCK_SIZE; _x++)
 {
-    _data += string(world_get_block(_layer, _x * BLOCK_SIZE, _y * BLOCK_SIZE));
+    _data += string(world_get_block(_layer, _x, _y));
     if (_x != (WORLD_WIDTH div BLOCK_SIZE) - 1) _data += ", ";
 }
 

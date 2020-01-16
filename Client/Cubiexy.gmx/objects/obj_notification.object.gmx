@@ -59,7 +59,7 @@ x = position;
           <argument>
             <kind>1</kind>
             <string>///Hide notification
-position = -width;
+position = -width - 30;
 </string>
           </argument>
         </arguments>
@@ -90,7 +90,32 @@ audio_play_sound(snd_button_click, 11, false);
 position = 0;
 
 //Hide
-alarm[1] = 130;
+alarm[1] = 110;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="3" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Control
+width = 128 + string_width(text);
+x = lerp(x, position, 0.10);
 </string>
           </argument>
         </arguments>
@@ -114,10 +139,6 @@ alarm[1] = 130;
           <argument>
             <kind>1</kind>
             <string>///Draw
-
-//Control
-width = 128 + string_width(text);
-x = lerp(x, position, 0.10);
 
 //Draw settings
 draw_set(-1, 1, fnt_notification);

@@ -28,6 +28,15 @@
         <sprite>sprites\spr_player_jump</sprite>
         <sprite>sprites\spr_player_fall</sprite>
         <sprite>sprites\spr_player_attack</sprite>
+        <sprites name="Skins">
+          <sprites name="Shark">
+            <sprite>sprites\spr_shark_idle</sprite>
+            <sprite>sprites\spr_shark_run</sprite>
+            <sprite>sprites\spr_shark_jump</sprite>
+            <sprite>sprites\spr_shark_fall</sprite>
+            <sprite>sprites\spr_shark_attack</sprite>
+          </sprites>
+        </sprites>
       </sprites>
     </sprites>
     <sprites name="GUI">
@@ -37,6 +46,11 @@
       </sprites>
       <sprites name="Screen">
         <sprite>sprites\spr_shadow</sprite>
+        <sprites name="Chat">
+          <sprite>sprites\spr_chat_text</sprite>
+          <sprite>sprites\spr_chat_input</sprite>
+          <sprite>sprites\spr_chat_hold</sprite>
+        </sprites>
       </sprites>
     </sprites>
   </sprites>
@@ -115,6 +129,19 @@
                 <script>scripts\send_player_destroy.gml</script>
               </scripts>
             </scripts>
+            <scripts name="Chat">
+              <scripts name="Handle">
+                <script>scripts\handle_chat.gml</script>
+                <script>scripts\handle_chat_everyone.gml</script>
+                <script>scripts\handle_chat_world.gml</script>
+                <script>scripts\handle_chat_private.gml</script>
+              </scripts>
+              <scripts name="Send">
+                <script>scripts\send_chat_everyone.gml</script>
+                <script>scripts\send_chat_world.gml</script>
+                <script>scripts\send_chat_private.gml</script>
+              </scripts>
+            </scripts>
           </scripts>
         </scripts>
       </scripts>
@@ -130,6 +157,7 @@
         <script>scripts\draw_string_outline.gml</script>
         <script>scripts\draw_text_colour_outline.gml</script>
         <script>scripts\draw_sprite_shadow.gml</script>
+        <script>scripts\draw_sprite_shadow_ext.gml</script>
       </scripts>
       <scripts name="Data Structures">
         <script>scripts\array_create_1d.gml</script>
@@ -142,6 +170,7 @@
         <script>scripts\string_decode.gml</script>
         <script>scripts\string_position.gml</script>
         <script>scripts\string_split.gml</script>
+        <script>scripts\string_extract.gml</script>
       </scripts>
       <scripts name="Files">
         <script>scripts\ini_save.gml</script>
@@ -154,6 +183,13 @@
         <script>scripts\buffer_custom_compress.gml</script>
         <script>scripts\buffer_custom_decompress.gml</script>
       </scripts>
+      <scripts name="Colored Text">
+        <script>scripts\string_keywords_validate.gml</script>
+        <script>scripts\string_keywords_remove.gml</script>
+        <script>scripts\draw_text_colored.gml</script>
+        <script>scripts\draw_text_custom.gml</script>
+        <script>scripts\draw_text_custom_ext.gml</script>
+      </scripts>
     </scripts>
     <scripts name="GUI">
       <script>scripts\gui_init.gml</script>
@@ -164,6 +200,31 @@
       <scripts name="Screen">
         <script>scripts\transition_go_to.gml</script>
         <script>scripts\show_notification.gml</script>
+      </scripts>
+      <scripts name="Chat">
+        <script>scripts\chat_init.gml</script>
+        <script>scripts\chat_add_message.gml</script>
+        <script>scripts\chat_check_variable.gml</script>
+        <scripts name="Command">
+          <scripts name="Control">
+            <script>scripts\chat_add_command.gml</script>
+            <script>scripts\chat_get_command.gml</script>
+            <script>scripts\chat_command_exists.gml</script>
+            <script>scripts\is_chat_command.gml</script>
+            <script>scripts\is_chat_arguments_correct.gml</script>
+            <script>scripts\chat_execute_command.gml</script>
+            <script>scripts\chat_command_split.gml</script>
+            <script>scripts\have_command_permission.gml</script>
+          </scripts>
+          <scripts name="Commands">
+            <script>scripts\chat_command_help.gml</script>
+            <script>scripts\chat_command_debug.gml</script>
+            <script>scripts\chat_command_broadcast.gml</script>
+            <script>scripts\chat_command_private.gml</script>
+            <script>scripts\chat_command_noclip.gml</script>
+            <script>scripts\chat_command_owner.gml</script>
+          </scripts>
+        </scripts>
       </scripts>
     </scripts>
     <scripts name="World">
@@ -202,20 +263,6 @@
           <script>scripts\world_get_layer_name.gml</script>
           <script>scripts\world_get_layer_id.gml</script>
         </scripts>
-        <scripts name="Render">
-          <script>scripts\world_render.gml</script>
-        </scripts>
-      </scripts>
-      <scripts name="Chunk">
-        <scripts name="Control">
-          <script>scripts\chunk_update.gml</script>
-          <script>scripts\chunk_update_all.gml</script>
-          <script>scripts\chunk_destroy.gml</script>
-        </scripts>
-        <scripts name="Render">
-          <script>scripts\chunk_render.gml</script>
-          <script>scripts\chunk_render_update.gml</script>
-        </scripts>
       </scripts>
       <scripts name="Data">
         <script>scripts\world_write_horizontal_blocks.gml</script>
@@ -236,6 +283,7 @@
         <font>fonts\fnt_logo</font>
         <font>fonts\fnt_logo_text</font>
         <font>fonts\fnt_notification</font>
+        <font>fonts\fnt_chat</font>
       </fonts>
       <fonts name="Buttons">
         <font>fonts\fnt_button</font>
@@ -263,6 +311,7 @@
         <object>objects\obj_logo</object>
         <object>objects\obj_transition</object>
         <object>objects\obj_notification</object>
+        <object>objects\obj_chat</object>
       </objects>
     </objects>
     <objects name="Controllers">
@@ -292,17 +341,13 @@
       <room>rooms\rm_world</room>
     </rooms>
   </rooms>
-  <constants number="19">
+  <constants number="15">
     <constant name="GAME_MESSAGE">"PLEASE DO NOT SHARE THIS VERSION!"</constant>
     <constant name="GAME_VERSION">"ALPHA 0.0.1"</constant>
-    <constant name="DEBUG">true</constant>
     <constant name="BLOCK_SIZE">32</constant>
-    <constant name="CHUNK_MAX_HORIZONTAL">10</constant>
-    <constant name="CHUNK_MAX_VERTICAL">5</constant>
-    <constant name="CHUNK_SIZE">10</constant>
-    <constant name="WORLD_WIDTH">CHUNK_MAX_HORIZONTAL * CHUNK_SIZE * BLOCK_SIZE</constant>
-    <constant name="WORLD_HEIGHT">CHUNK_MAX_VERTICAL       * CHUNK_SIZE * BLOCK_SIZE</constant>
-    <constant name="BUFFER_SIZE">20000</constant>
+    <constant name="WORLD_WIDTH">100 * BLOCK_SIZE</constant>
+    <constant name="WORLD_HEIGHT">50   * BLOCK_SIZE</constant>
+    <constant name="BUFFER_SIZE">100000</constant>
     <constant name="BOOL">buffer_bool</constant>
     <constant name="BYTE">buffer_u8</constant>
     <constant name="STRING">buffer_string</constant>

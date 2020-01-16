@@ -40,11 +40,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\hp\\Desktop\\Server\\Server.csproj",
+      "projectUniqueName": "C:\\Users\\hp\\Desktop\\Cubiexy\\Server\\Server.csproj",
       "projectName": "Server",
-      "projectPath": "C:\\Users\\hp\\Desktop\\Server\\Server.csproj",
+      "projectPath": "C:\\Users\\hp\\Desktop\\Cubiexy\\Server\\Server.csproj",
       "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\hp\\Desktop\\Server\\obj\\",
+      "outputPath": "C:\\Users\\hp\\Desktop\\Cubiexy\\Server\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config"

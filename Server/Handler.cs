@@ -16,7 +16,8 @@ namespace Server
 			CLIENT,
 			ACCOUNT,
 			WORLD,
-			PLAYER
+			PLAYER,
+			CHAT
 		}
 		
 		//Default variables
@@ -39,29 +40,36 @@ namespace Server
 			//Set the read buffer
 			read_buffer = _read_buffer;
 	
-			//Get data
-			ushort _data_id;
-			read_buffer.Read(out _data_id);
-
-			//Check for data id
-			switch (_data_id)
+			//Check for connection
+			if (client.connected)
 			{
-				//Client
-				case (ushort) DATA.CLIENT: handle_client(); break;
-			
-				//Account
-				case (ushort) DATA.ACCOUNT: handle_account(); break;
+				//Get data
+				ushort _data_id;
+				read_buffer.Read(out _data_id);
+
+				//Check for data id
+				switch (_data_id)
+				{
+					//Client
+					case (ushort) DATA.CLIENT: handle_client(); break;
 				
-				//World
-				case (ushort) DATA.WORLD: handle_world(); break;
-				
-				//Player
-				case (ushort) DATA.PLAYER: handle_player(); break;
+					//Account
+					case (ushort) DATA.ACCOUNT: handle_account(); break;
+					
+					//World
+					case (ushort) DATA.WORLD: handle_world(); break;
+					
+					//Player
+					case (ushort) DATA.PLAYER: handle_player(); break;
+
+					//Chat
+					case (ushort) DATA.CHAT: handle_chat(); break;
+				}
 			}
 		}
 		
 
-		//CLIENT
+		#region CLIENT
 
 		//Enums
 		public enum CLIENT
@@ -97,10 +105,7 @@ namespace Server
 			
 			//Send data
 			if (send_data)
-			{
 				send_client_data();
-				send_data = false;
-			}
 		}
 		
 		public void send_ping(uint time)
@@ -127,16 +132,30 @@ namespace Server
 			ushort _data_id = (ushort) DATA.CLIENT;
 			byte _type = (byte) CLIENT.DATA;
 			ushort _client_id = (ushort) client.client_id;
+
+			//Create the database
+			Database system_db = new Database("", "system");
+
+			//Get all the data
+			string _message     = system_db.get_string_key("information", "message");
+			string _version     = system_db.get_string_key("information", "version");
+			string _maintenance = system_db.get_string_key("information", "maintenance");
+			string _staff       = system_db.get_string_key("information", "staff");
 			
 			buffer.Write(_data_id);
 			buffer.Write(_type);
 			buffer.Write(_client_id);
+			buffer.Write(_message);
+			buffer.Write(_version);
+			buffer.Write(_maintenance);
+			buffer.Write(_staff);
 			
 			client.send(buffer);
 		}
 
+		#endregion
 
-		//ACCOUNT
+		#region ACCOUNT
 
 		//Enums
 		public enum ACCOUNT
@@ -329,7 +348,9 @@ namespace Server
 			client.username = "";
 		}
 	
-		//WORLD
+		#endregion
+
+		#region WORLD
 
 		//Enums
 		public enum WORLD
@@ -625,10 +646,8 @@ namespace Server
 		{
 			//Read data
 			string _world_name;
-			string _layer_name;
 			
 			read_buffer.Read(out _world_name);
-			read_buffer.Read(out _layer_name);
 			
 			//Create the database
 			Database world_db = new Database("Worlds", _world_name);
@@ -637,7 +656,8 @@ namespace Server
 			if (world_db.exists())
 			{
 				//Send back
-				send_world_load(world_db, (byte) world_get_layer_id(_layer_name), _layer_name);
+				send_world_load(world_db, (byte) world_get_layer_id("background_layer"), "background_layer");
+				send_world_load(world_db, (byte) world_get_layer_id("foreground_layer"), "foreground_layer");
 			}
 		}
 
@@ -650,21 +670,18 @@ namespace Server
 			//Loop through world height and send every row
 			for (byte _y = 0; _y < 50; _y += 1)
 			{
-				BufferStream _temp_buffer = new BufferStream(1200, 1);
-				_temp_buffer.Seek(0);
-				
-				_temp_buffer.Write(_data_id);
-				_temp_buffer.Write(_type);
-				_temp_buffer.Write(layer_id);
-				_temp_buffer.Write(_y);
-
 				//Get the data
 				string _data = world_db.get_string_key(layer_name, _y.ToString());
 
-				//Write the block data
-				_temp_buffer.Write(_data);
+				buffer.Seek(0);
 				
-				client.send(_temp_buffer);
+				buffer.Write(_data_id);
+				buffer.Write(_type);
+				buffer.Write(layer_id);
+				buffer.Write(_y);
+				buffer.Write(_data);
+				
+				client.send(buffer);
 			}
 		}
 
@@ -678,7 +695,9 @@ namespace Server
 			client.world_name = "";
 		}
 
-		//PLAYER
+		#endregion
+
+		#region PLAYER
 
 		//Enums
 		public enum PLAYER
@@ -753,5 +772,106 @@ namespace Server
 			
 			client.send_to_world(buffer);
 		}
+
+		#endregion
+
+		#region CHAT
+
+		//Enums
+		public enum CHAT
+		{
+			EVERYONE,
+			WORLD,
+			PRIVATE
+		}
+
+		//Handle chat
+		private void handle_chat()
+		{
+			//Read data
+			byte _type;
+			read_buffer.Read(out _type);
+			
+			//Check for type
+			switch (_type)
+			{
+				//Everyone
+			    case (byte) CHAT.EVERYONE: handle_chat_everyone(); break;
+			    
+			    //World
+			    case (byte) CHAT.WORLD: handle_chat_world(); break;
+			    
+			    //Private
+			    case (byte) CHAT.PRIVATE: handle_chat_private(); break;
+			}
+		}
+		
+		//Handle chat everyone
+		public void handle_chat_everyone()
+		{
+			//Read data
+			string _text;
+			
+			read_buffer.Read(out _text);
+			
+			//Send back
+			buffer.Seek(0);
+			
+			ushort _data_id = (ushort) DATA.CHAT;
+			byte _type      = (byte) CHAT.EVERYONE;
+			
+			buffer.Write(_data_id);
+			buffer.Write(_type);
+			buffer.Write(_text);
+			
+			client.send_to_everyone(buffer);
+		}
+
+		//Handle chat world
+		public void handle_chat_world()
+		{
+			//Read data
+			string _text;
+			
+			read_buffer.Read(out _text);
+			
+			//Send back
+			buffer.Seek(0);
+			
+			ushort _data_id = (ushort) DATA.CHAT;
+			byte _type      = (byte) CHAT.WORLD;
+			
+			buffer.Write(_data_id);
+			buffer.Write(_type);
+			buffer.Write(_text);
+			
+			client.send_to_world(buffer);
+		}
+
+		//Handle chat private
+		public void handle_chat_private()
+		{
+			//Read data
+			string _text;
+			string _username;
+			
+			read_buffer.Read(out _text);
+			read_buffer.Read(out _username);
+			
+			//Send back
+			buffer.Seek(0);
+			
+			ushort _data_id = (ushort) DATA.CHAT;
+			byte _type      = (byte) CHAT.PRIVATE;
+			
+			buffer.Write(_data_id);
+			buffer.Write(_type);
+			buffer.Write(_text);
+			buffer.Write(client.username);
+			
+			client.send_to(buffer, _username);
+		}
+
+		#endregion
 	}
 }

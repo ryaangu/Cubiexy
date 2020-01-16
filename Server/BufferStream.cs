@@ -30,15 +30,15 @@ namespace Server
         /// <summary>
         /// Gets the underlying array of memory for this BufferStream.
         /// </summary>
-        public byte[] Memory { get { return memory; } }
+        public byte[] Memory { get { return memory; }}
         /// <summary>
         /// Gets the length of the buffer in bytes.
         /// </summary>
-        public int Length { get { return length; } }
+        public int Length { get { return length; }}
         /// <summary>
         /// Gets the current iterator(read/write position) for this BufferStream.
         /// </summary>
-        public int Iterator { get { return iterator; } }
+        public int Iterator { get { return iterator; }}
 
         /// <summary>
         /// Instantiates an instance of the BufferStream class with the specified stream length and alignment.

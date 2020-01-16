@@ -10,7 +10,7 @@ var _dist_y        = 10,
     _dist_y_random = 30;
     
 //Loop through world x
-while (_air_x < CHUNK_MAX_HORIZONTAL * CHUNK_SIZE)
+while (_air_x < WORLD_WIDTH div BLOCK_SIZE)
 {
     //Random generation values
     _air_y_change = irandom(4) - 3;

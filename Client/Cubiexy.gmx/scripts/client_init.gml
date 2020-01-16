@@ -6,5 +6,6 @@ enum DATA
     CLIENT,
     ACCOUNT,
     WORLD,
-    PLAYER
+    PLAYER,
+    CHAT
 }

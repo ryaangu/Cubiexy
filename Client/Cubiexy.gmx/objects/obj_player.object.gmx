@@ -27,6 +27,12 @@
             <kind>1</kind>
             <string>///Initialize the player
 
+//Update the name
+if (global.staff_permission)
+    name = "~YSTAFF ~W"  + global.username + "~Y";
+else
+    name = "~YTESTER ~W"  + global.username + "~Y";
+
 //Movement
 hsp = 0;
 vsp = 0;
@@ -49,6 +55,13 @@ instance_create(0, 0, obj_camera);
 
 //Get inputs
 _key_left = false; _key_right = false; _key_jump = false; _key_up = false; _key_down = false; _key_attack = false;
+
+//Sprite control
+sprite_idle   = spr_shark_idle;
+sprite_run    = spr_shark_run;
+sprite_jump   = spr_shark_jump;
+sprite_fall   = spr_shark_fall;
+sprite_attack = spr_shark_attack;
 
 //Update the player
 alarm[0] = 1;
@@ -99,11 +112,12 @@ send_player_destroy();
           <argument>
             <kind>1</kind>
             <string>///Update the player
-if (update)
+if (update) 
 {
     send_player_update();
     update = false;
 }
+
 alarm[0] = 1.2;
 </string>
           </argument>
@@ -130,7 +144,7 @@ alarm[0] = 1.2;
             <string>///Player Movement
 
 //Check for pause
-if (!instance_exists(par_pause))
+if (!instance_exists(par_pause) &amp;&amp; !obj_chat.typing)
 {
     //Get inputs
     _key_left   = keyboard_check(ord("A")) || keyboard_check(vk_left);
@@ -138,7 +152,7 @@ if (!instance_exists(par_pause))
     _key_jump   = keyboard_check_pressed(ord("W")) || keyboard_check_pressed(vk_space) || keyboard_check_pressed(vk_up);
     _key_up     = keyboard_check(ord("W")) || keyboard_check(vk_space) || keyboard_check(vk_up);
     _key_down   = keyboard_check(ord("S")) || keyboard_check(vk_down);
-    _key_attack = mouse_check_button_pressed(mb_left);
+    _key_attack = mouse_check_button_released(mb_left);
 }    
 
 //React to inputs
@@ -177,9 +191,6 @@ else
     //Image
     image_alpha = 1;
 }
-
-if (keyboard_check_pressed(ord("N"))) noclip = !noclip;
-    
     
 //Horizontal Collision
 if (block_meeting(x + hsp, y) &amp;&amp; !(noclip &amp;&amp; ((_key_up || _key_down) || (_key_left || _key_right))))
@@ -235,22 +246,22 @@ if (x != xprevious || y != yprevious)
 //Movement animation
 if (block_meeting(x, y + 1) || y == WORLD_HEIGHT - 17)
 {
-    if (sprite_index != spr_player_attack &amp;&amp; (!image_index &gt;= 0 || !image_index &lt;= 4))
+    if (sprite_index != sprite_attack &amp;&amp; (!image_index &gt;= 0 || !image_index &lt;= 4))
     {
         if (move != 0)
         {
-            sprite_index = spr_player_run;
+            sprite_index = sprite_run;
         }
         else
-            sprite_index = spr_player_idle;
+            sprite_index = sprite_idle;
     }
 }
 else
 {
     if (vsp &lt; 0)
-        sprite_index = spr_player_jump;
+        sprite_index = sprite_jump;
     else
-        sprite_index = spr_player_fall;
+        sprite_index = sprite_fall;
 }
 
 //Player direction
@@ -261,9 +272,9 @@ if (move != 0 &amp;&amp; image_xscale != move)
 }
  
 //Editing animation   
-if (sprite_index != spr_player_attack &amp;&amp; _key_attack)
+if (sprite_index != sprite_attack &amp;&amp; _key_attack &amp;&amp; !obj_chat.hovering &amp;&amp; !obj_chat.holding &amp;&amp; !obj_chat.typing)
 {
-    sprite_index = spr_player_attack;
+    sprite_index = sprite_attack;
     image_speed  = 0.27;
     update       = true;
 }
@@ -298,8 +309,6 @@ if (block_meeting(x, y) &amp;&amp; !noclip)
           </argument>
         </arguments>
       </action>
-    </event>
-    <event eventtype="6" enumb="53">
       <action>
         <libid>1</libid>
         <id>603</id>
@@ -316,14 +325,69 @@ if (block_meeting(x, y) &amp;&amp; !noclip)
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>var _layer;
-
-if (world_get_block(LAYER.FOREGROUND, mouse_x, mouse_y) == BLOCK.NULL)
-    _layer = LAYER.BACKGROUND;
+            <string>///Update name
+if (global.staff_permission)
+    name = "~YSTAFF ~W"  + global.username + "~Y";
 else
-    _layer = LAYER.FOREGROUND;
+    name = "~YTESTER ~W"  + global.username + "~Y";
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="6" enumb="57">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>var _layer = LAYER.BACKGROUND;
 
-send_world_set_block(global.world_name, _layer, mouse_x div BLOCK_SIZE, mouse_y div BLOCK_SIZE, 0);
+if (world_get_block(LAYER.BACKGROUND, mouse_x div BLOCK_SIZE, mouse_y div BLOCK_SIZE) != BLOCK.NULL)
+    _layer = LAYER.FOREGROUND;
+    
+if (!obj_chat.hovering &amp;&amp; !obj_chat.holding &amp;&amp; !obj_chat.typing)
+    send_world_set_block(global.world_name, _layer, mouse_x div BLOCK_SIZE, mouse_y div BLOCK_SIZE, irandom_range(BLOCK.GRASS, BLOCK.COUNT - 1));
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="6" enumb="56">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>var _layer = LAYER.FOREGROUND;
+
+if (world_get_block(_layer, mouse_x div BLOCK_SIZE, mouse_y div BLOCK_SIZE) == BLOCK.NULL)
+    _layer = LAYER.BACKGROUND;
+   
+if (!obj_chat.hovering &amp;&amp; !obj_chat.holding &amp;&amp; !obj_chat.typing) 
+    send_world_set_block(global.world_name, _layer, mouse_x div BLOCK_SIZE, mouse_y div BLOCK_SIZE, 0);
 </string>
           </argument>
         </arguments>
@@ -347,10 +411,10 @@ send_world_set_block(global.world_name, _layer, mouse_x div BLOCK_SIZE, mouse_y 
           <argument>
             <kind>1</kind>
             <string>///Check for attack animation
-if (sprite_index == spr_player_attack)
+if (sprite_index == sprite_attack)
 {
     //Reset sprite
-    sprite_index = spr_player_idle;
+    sprite_index = sprite_idle;
     image_speed  = 0.25;
 }
 </string>
@@ -377,7 +441,7 @@ if (sprite_index == spr_player_attack)
             <kind>1</kind>
             <string>///Draw the player
 draw_self();
-player_render_name(global.username);
+player_render_name(name);
 </string>
           </argument>
         </arguments>

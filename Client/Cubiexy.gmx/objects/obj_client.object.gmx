@@ -29,17 +29,12 @@
 
 //Connect to the server
 global.socket = network_create_socket(network_socket_tcp);
-network_connect_raw(global.socket, "127.0.0.1", 9700);
-
-//Socket configuration
-network_set_config(network_config_connect_timeout, 1000);
-network_set_config(network_config_use_non_blocking_socket, 1);
-network_set_timeout(global.socket, 1000, 1000);
+network_connect_raw(global.socket, "0.tcp.ngrok.io", 15084);
 
 //Global variables
-global.connected = true;
-global.ping      = -1;
-global.client_id = -1;
+global.connected     = true;
+global.ping          = -1;
+global.client_id     = -1;
 
 //Create the read bufferf
 global.buffer = buffer_create(BUFFER_SIZE, buffer_fixed, 1);
@@ -47,6 +42,32 @@ read_buffer   = buffer_create(BUFFER_SIZE, buffer_fixed, 1);
 
 //Send ping
 alarm[0] = 1;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="1" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Destroy the socket and buffer
+network_destroy(global.socket);
+buffer_delete(global.buffer);
+buffer_delete(read_buffer);
 </string>
           </argument>
         </arguments>
@@ -101,45 +122,19 @@ switch (async_load[? "type"])
     case network_type_data:
     
         //Get the read buffer
-        var _read_buffer = async_load[? "buffer"],
-            _size        = async_load[? "size"];
+            read_buffer = async_load[? "buffer"];
+        var _size       = async_load[? "size"];
         
         //Handle
-        buffer_seek(_read_buffer, buffer_seek_start, 0);
+        buffer_seek(read_buffer, buffer_seek_start, 0);
         
-        while (buffer_tell(_read_buffer) &lt; _size)
-            handler(_read_buffer);
-            
-        buffer_delete(_read_buffer);
+        while (buffer_tell(read_buffer) &lt; _size)
+        {
+            handler();
+        }
         
     break;   
 }
-</string>
-          </argument>
-        </arguments>
-      </action>
-    </event>
-    <event eventtype="7" enumb="3">
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string>///Destroy the socket and buffer
-network_destroy(global.socket);
-buffer_delete(global.buffer);
-buffer_delete(read_buffer);
 </string>
           </argument>
         </arguments>
