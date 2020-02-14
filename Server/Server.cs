@@ -11,7 +11,7 @@ namespace Server
 	public class Server
 	{
 		//Default variables
-		public const string IP   = "127.0.0.1";
+		public const string IP   = "127.0.0.1";//"10.9.43.242";
 		public const int    PORT = 9700;
 
 		//Client variables
@@ -29,8 +29,12 @@ namespace Server
 		{
 			//Bind, listen and start receiving new connections
 			socket.Bind(new IPEndPoint(IPAddress.Parse(IP), PORT));
-			socket.Listen(100);
+			socket.Listen(0);
 			socket.BeginAccept(new AsyncCallback(accept_connection), null);
+			
+			socket.NoDelay        = true;
+			socket.ReceiveTimeout = 1000;
+			socket.SendTimeout    = 1000;
 
 			//Show console message
 			Console.WriteLine("Server started!");

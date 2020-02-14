@@ -381,7 +381,6 @@ namespace Server
         {
             value = BitConverter.ToUInt16(memory, iterator);
             iterator = (iterator + (int)BufferTypeSize.UInt16 + fastAlign) & fastAlignNot;
-            Console.WriteLine(iterator);
             BYTES -= 2;
         }
 

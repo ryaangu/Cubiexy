@@ -11,7 +11,7 @@ namespace Server
 	public class Client
 	{
 		//Default variables
-		public const int BUFFER_SIZE = 100000;
+		public const int BUFFER_SIZE = 10240;
 
 		public BufferStream  buffer       = new BufferStream(BUFFER_SIZE, 1);
 		BufferStream         read_buffer  = new BufferStream(BUFFER_SIZE, 1);
@@ -40,8 +40,6 @@ namespace Server
 			handler = new Handler();
 			handler.start(buffer, this);
 		}
-
-		public void stackResize(){}
 
 		//Destroy everything
 		public void destroy()
@@ -90,6 +88,12 @@ namespace Server
 		{
 			try
 			{
+				BufferStream _buffer_size = new BufferStream(4, 1);
+				int          _size        = _buffer.Iterator + 1;
+
+				_buffer_size.Write(_size);
+				_buffer.BlockCopy(_buffer_size, 0, 4);
+
 				//Begin sending data
 				socket.BeginSend(_buffer.Memory, 0, _buffer.Iterator, SocketFlags.None, new AsyncCallback(send_data), null);
 			}
@@ -158,11 +162,6 @@ namespace Server
 			{
 				//End sending
 				_data = socket.EndSend(AR);
-
-				buffer.Seek(0);
-				ushort d;
-				buffer.Read(out d);
-				Console.WriteLine("Sent: " + d);
 			}
 			catch (SocketException)
 			{
@@ -200,21 +199,21 @@ namespace Server
 				//End receiving
 				_data = socket.EndReceive(AR);
 
+				if (_data == 0) return;
+
+				read_buffer.SetBytes(_data);
+
+				read_buffer.Seek(0);
+
 				//Check for data length
-				if (_data > 0)
+				while (read_buffer.BYTES > 0)
 				{
 					//Handle
-					read_buffer.Seek(0);
 					handler.handle(read_buffer);
-
-					//Receive more data
-					socket.BeginReceive(read_buffer.Memory, 0, BUFFER_SIZE, SocketFlags.None, new AsyncCallback(receive_data), null);
-				} 
-				else 
-				{
-					disconnect();
-					return;
 				}
+
+				//Receive more data
+				socket.BeginReceive(read_buffer.Memory, 0, BUFFER_SIZE, SocketFlags.None, new AsyncCallback(receive_data), null);
 			}
 			catch (SocketException)
 			{

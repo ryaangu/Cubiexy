@@ -24,7 +24,7 @@ namespace Server
 		public Client       client;
 		public BufferStream buffer;
 		public BufferStream read_buffer;
-		public bool         send_data = true;
+		public bool         send_data = false;
 		
 		//Start the handler
 		public void start(BufferStream _buffer, Client _client)
